@@ -36,9 +36,11 @@ class Event(TimeWindow):
     max_time: timedelta;
     
     # availibility: List[TimeWindow];
+    due_date: Optional[datetime] = None;
     
     # flag for error catching
     is_scheduled: bool = False;
+    is_failed: bool = False;
     
     def schedule_event(self, start: datetime, end: datetime) -> None:
         """Schedule the event in a specific time window."""
@@ -66,7 +68,7 @@ class Scheduler:
     def add_event(self, event: Event) -> None:
         """Add an event to the events list."""
         self.events.append(event);
-        self.events.sort(key=lambda x: (x.priority, -x.max_time.total_seconds()));
+        self.events.sort(key=lambda x: (x.priority, x.due_date or datetime.max));
 
     def _find_slot(self, target_duration: timedelta) -> Optional[Slot]:
         """
@@ -91,12 +93,14 @@ class Scheduler:
                             )]:
                 
                 slot = self._find_slot(duration);
-                if slot:
+                if slot and (not event.due_date or slot.start + duration <= event.due_date):
                                         
                     event.schedule_event(slot.adj_start, slot.adj_start + duration);
                     slot.percent_left -= duration / slot.capacity;
                     
                     break
+            
+            if not event.is_scheduled: event.is_failed = True;
                 
     def display_schedule(self) -> None:
         # Display slots with their remaining capacit
@@ -118,6 +122,17 @@ class Scheduler:
                 f"{event.duration.total_seconds() / 60:.1f}m",
                 event.priority)
             for event in self.events if event.is_scheduled],
+            headers=["Start", "End", "Duration", "Priority"],
+            tablefmt="grid"
+        ));
+        
+        print("\nFailed Events:");
+        print(tabulate([(
+                event.start.strftime("%Y-%m-%d %H:%M"),
+                event.end.strftime("%Y-%m-%d %H:%M"),
+                f"{event.duration.total_seconds() / 60:.1f}m",
+                event.priority)
+            for event in self.events if event.is_failed],
             headers=["Start", "End", "Duration", "Priority"],
             tablefmt="grid"
         ));
