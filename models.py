@@ -27,8 +27,6 @@ class Slot(TimeWindow):
     def adj_start(self) -> datetime:
         return self.start + (self.duration - self.capacity)
         
-    
-
 @dataclass
 class Event(TimeWindow):
     """A Event that has a range of length that needs to be scheduled"""
@@ -38,7 +36,7 @@ class Event(TimeWindow):
     # availibility: List[TimeWindow];
     due_date: Optional[datetime] = None;
     
-    # flag for error catching
+    # flags for state control
     is_scheduled: bool = False;
     is_failed: bool = False;
     
@@ -101,6 +99,7 @@ class Scheduler:
                     break
             
             if not event.is_scheduled: event.is_failed = True;
+            # could later add logic to try to recover time from previously scheduled events
                 
     def display_schedule(self) -> None:
         # Display slots with their remaining capacit
