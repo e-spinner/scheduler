@@ -39,6 +39,7 @@ class Event(TimeWindow):
     # flags for state control
     is_scheduled: bool = False;
     is_failed: bool = False;
+    id: int = None;
     
     def schedule_event(self, start: datetime, end: datetime) -> None:
         """Schedule the event in a specific time window."""

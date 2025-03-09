@@ -1,19 +1,23 @@
-from database import SchedulerStorage
-from datetime import datetime, timedelta
-from models import Slot, Event
+import sys
+from PySide6.QtWidgets import QApplication
+from PySide6.QtQml import QQmlApplicationEngine
 
+from database import SchedulerStorage
+
+# Initialize storage for scheduling logic
 storage = SchedulerStorage()
 
-# Faux user input
-new_slot = Slot(datetime(2025, 3, 6, 9, 0), datetime(2025, 3, 6, 12, 0), 3, 1.0)
-new_event = Event(None, None, 3, timedelta(minutes=30), timedelta(minutes=90))
+def main():
+    app = QApplication(sys.argv)
+    engine = QQmlApplicationEngine()
 
-# Add slot & event
-storage.add_slot(new_slot)
-storage.add_event(new_event)
+    # Load QML UI
+    engine.load("main.qml")
 
-# Run optimization
-storage.optimize_schedule()
+    if not engine.rootObjects():
+        sys.exit(-1)
 
-# Display updated schedule
-storage.display_schedule()
+    sys.exit(app.exec())
+
+if __name__ == "__main__":
+    main()

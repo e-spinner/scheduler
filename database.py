@@ -1,6 +1,7 @@
 from sqlite3 import connect, IntegrityError
 from datetime import datetime, timedelta
 from models import Slot, Event, Scheduler
+from typing import List
 
 DB_PATH = "database.db";
 
@@ -12,7 +13,7 @@ class SchedulerStorage:
         self.scheduler = Scheduler();
         self._load_data();
 
-    def _initialize_db(self):
+    def _initialize_db(self) -> None:
         """Create tables if they don't exist."""
         with connect(self.db_path) as conn:
             cursor = conn.cursor();
@@ -34,18 +35,17 @@ class SchedulerStorage:
                     priority INTEGER NOT NULL,
                     due_date TEXT DEFAULT NULL,
                     is_scheduled INTEGER NOT NULL DEFAULT 0,
-                    is_failed INTEGER NOT NULL DEFAULT 0,
                     is_done INTEGER NOT NULL DEFAULT 0
                 );
             """);
             conn.commit();
 
-    def _load_data(self):
+    def _load_data(self) -> None:
         """Fill scheduler with prexisting data"""
         self.scheduler.slots = self.get_future_slots();
         self.scheduler.events = self.get_schedulable_events();
         
-    def add_slot(self, slot: Slot):
+    def add_slot(self, slot: Slot) -> None:
         """Insert a new slot into the database."""
         with connect(self.db_path) as conn:
             cursor = conn.cursor();
@@ -61,13 +61,13 @@ class SchedulerStorage:
 
             
 
-    def add_event(self, event: Event):
+    def add_event(self, event: Event) -> None:
         """Insert a new event into the database."""
         with connect(self.db_path) as conn:
             cursor = conn.cursor();
             cursor.execute("""
-                INSERT INTO events (start, end, min_time, max_time, priority, due_date, is_scheduled, is_failed, is_done)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO events (start, end, min_time, max_time, priority, due_date, is_scheduled, is_done)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """, (
             None, None,
             int(event.min_time.total_seconds()),
@@ -79,7 +79,7 @@ class SchedulerStorage:
             
         self.scheduler.add_event(event);
 
-    def get_slots(self):
+    def get_slots(self) -> List[Slot]:
         """Retrieve all slots in List[Slot] form."""
         with connect(self.db_path) as conn: 
             cursor = conn.cursor();
@@ -87,7 +87,7 @@ class SchedulerStorage:
             rows = cursor.fetchall();
             return [Slot(datetime.fromisoformat(row[0]), datetime.fromisoformat(row[1]), row[3], row[2]) for row in rows];
         
-    def get_future_slots(self):
+    def get_future_slots(self) -> List[Slot]:
         """Retrieve all future slots in List[Slot] form."""
         now = datetime.now()
         with connect(self.db_path) as conn: 
@@ -96,24 +96,24 @@ class SchedulerStorage:
             rows = cursor.fetchall();
             return [Slot(datetime.fromisoformat(row[0]), datetime.fromisoformat(row[1]), row[3], row[2]) for row in rows];
 
-    def get_events(self):
+    def get_events(self) -> List[Event]:
         """Retrieve all events in List[Event] form."""
         with connect(self.db_path) as conn:
             cursor = conn.cursor();
             cursor.execute("SELECT * FROM events");
             rows = cursor.fetchall();
             return [Event(
+                    row[0],
                     None, 
                     None, 
                     row[5], 
                     timedelta(seconds=row[3]), 
                     timedelta(seconds=row[4]), 
                     datetime.fromisoformat(row[6]), 
-                    bool(row[7]), 
-                    bool(row[8])) 
+                    bool(row[7]))
                 for row in rows if row[9] == 0];
 
-    def get_schedulable_events(self):
+    def get_schedulable_events(self) -> List[Event]:
         """Retrieve all events in List[Event] form."""
         now = datetime.now()
         with connect(self.db_path) as conn:
@@ -124,17 +124,30 @@ class SchedulerStorage:
             """, (now.isoformat(),));
             rows = cursor.fetchall();
             return [Event(
+                    row[0],
                     None, 
                     None, 
                     row[5], 
                     timedelta(seconds=row[3]), 
                     timedelta(seconds=row[4]), 
                     datetime.fromisoformat(row[6]), 
-                    bool(row[7]), 
-                    bool(row[8])) 
+                    bool(row[7]))
                 for row in rows if row[9] == 0];
         
-    def optimize_schedule(self):
+    def update_event_done(self, event_id: int, is_done: bool) -> None:
+        """
+        Update an event's `is_done` flag in the database.
+        """
+        with connect(self.db_path) as conn:
+            cursor = conn.cursor();
+            cursor.execute("""
+                UPDATE events
+                SET is_done = ?
+                WHERE id = ?
+            """, (1 if is_done else 0, event_id));
+            conn.commit();
+        
+    def optimize_schedule(self) -> None:
         """Optimize and store scheduled events in the database."""
         self.scheduler.optimize_schedule();
         
@@ -149,6 +162,6 @@ class SchedulerStorage:
                     """, (event.start.isoformat(), event.end.isoformat(), int(event.min_time.total_seconds()), int(event.max_time.total_seconds()), event.priority));
             conn.commit();
 
-    def display_schedule(self):
+    def display_schedule(self) -> None:
         """Display the schedule from the scheduler."""
         self.scheduler.display_schedule();
