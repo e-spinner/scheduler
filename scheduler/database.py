@@ -1,6 +1,6 @@
 from sqlite3 import connect, IntegrityError
 from datetime import datetime, timedelta
-from backend.datamodel import Slot, Event, Scheduler
+from model import Slot, Event, Scheduler
 from typing import List
 
 DB_PATH = "database.db";
