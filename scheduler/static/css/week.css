@@ -1,0 +1,82 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    text-align: center;
+}
+
+.week-grid {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.time-labels {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-right: 5px;
+}
+
+.time-label {
+    height: 60px;
+    padding-right: 10px;
+    font-size: 14px;
+    user-select: none;
+}
+
+.grid-lines {
+  margin-top: 2px;
+  margin-left: 50px;
+  z-index: -1;
+  width: 710px;
+  height: 100%;
+  position: absolute;
+}
+
+.hour {
+  height: 14px;
+  border-bottom: 1px solid #888;
+}
+
+.quarter {
+  height: 14px;
+  border-bottom: 1px solid #ccc;
+}
+.week-container {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border: 2px solid #000;
+    position: relative;
+    z-index: 1;
+}
+
+.day-column {
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #000;
+    width: 100px;
+    height: 960px; /* 16 hours * 60px */
+    position: relative;
+}
+
+.slot {
+    position: absolute;
+    background-color: rgba(0, 255, 0, 0.5);
+    border: 1px solid green;
+    width: 100%;
+    cursor: move;
+}
+
+.resize-handle {
+    position: absolute;
+    height: 5px;
+    width: 100%;
+    background: green;
+    bottom: 0;
+    cursor: ns-resize;
+}
+

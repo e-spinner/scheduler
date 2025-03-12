@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/week.css">
+</head>
+<body>
+    <h1>Week View</h1>
+    <div class="week-grid">
+        <div class="time-labels">
+            {% for hour in range(start_hour, start_hour + 16) %}
+                <div class="time-label">{{ hour }}:00</div>
+            {% endfor %}
+        </div>
+        <div class="grid-lines">
+            {% for hour in range(start_hour, start_hour + 16) %}
+                {% if hour != start_hour %}
+                    <div class="hour"></div>
+                {% endif %}
+                <div class="quarter"></div>
+                <div class="quarter"></div>
+                <div class="quarter"></div>
+            {% endfor %}
+        </div>
+        <div class="week-container">
+            {% for day in range(7) %}
+                <div class="day-column" data-day="{{ day }}"></div>
+            {% endfor %}
+        </div>
+    </div>
+    <button id="saveSlots">Save</button>
+    <script src="/static/js/week.js"></script>
+</body>
+</html>
+
