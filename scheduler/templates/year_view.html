@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Scheduler - Year View</title>
-    <link rel="stylesheet" href="/static/css/year_view.css">
+    <link rel="stylesheet" href="/static/css/calendar.css">
 </head>
 <body>
-    <h1>Select a Year</h1>
-    
-    <div class="year-grid">
-        {% for y in range(start_year, end_year + 1) %}
-            <a href="/?year={{ y }}&month=1" class="year">{{ y }}</a>
+    <h1>
+        <a href="/year_view?year={{ year - 1 }}">←</a>
+        <a href="/years_view?year={{ year }}">{{ year }}</a>
+        <a href="/year_view?year={{ year + 1 }}">→</a>
+    </h1>
+
+    <div class="grid year">
+        {% for month in range(12) %}
+            <a href="/?year={{ year }}&month={{ month+1 }}" class="block">
+                {{ month_names[month] }}
+            </a>
         {% endfor %}
     </div>
+    
+    
 
 </body>
 </html>

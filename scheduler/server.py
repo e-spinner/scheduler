@@ -5,7 +5,7 @@ from database import SchedulerStorage
 from model import Scheduler
 
 from datetime import datetime
-from calendar import monthrange
+from calendar import monthrange, month_abbr
 
 app = Flask(__name__);
 ui = FlaskUI(server="flask", app=app, width=800, height=800);
@@ -13,9 +13,12 @@ ui = FlaskUI(server="flask", app=app, width=800, height=800);
 scheduler = Scheduler();
 storage = SchedulerStorage(scheduler);
 
+@app.route('/week_view')
+def week_view():
+    pass
+
 @app.route('/')
 def month_view():
-    # Get selected month and year from query parameters (defaults to current date)
     year = int(request.args.get('year', datetime.now().year));
     month = int(request.args.get('month', datetime.now().month));
 
@@ -23,6 +26,7 @@ def month_view():
         'month_view.html',
         year=year,
         month=month,
+        month_name=month_abbr[month],
         events_by_day=storage.get_scheduled_events(year, month),
         start_weekday=datetime(year, month, 1).weekday(),
         num_days=monthrange(year, month)[1],
@@ -34,11 +38,20 @@ def month_view():
 
 @app.route('/year_view')
 def year_view():
-    # Define the range of years (e.g., 5 years back and 5 years forward)
-    current_year = int(request.args.get('year', datetime.now().year));
+    year = int(request.args.get('year', datetime.now().year));
 
     return render_template(
         'year_view.html',
+        year=year,
+        month_names=[month_abbr[m] for m in range(1, 13)]
+    );
+
+@app.route('/years_view')
+def years_view():
+    current_year = int(request.args.get('year', datetime.now().year));
+
+    return render_template(
+        'years_view.html',
         start_year=datetime.now().year,
         end_year=current_year + 5
     );

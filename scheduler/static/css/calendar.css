@@ -23,12 +23,22 @@ h1 a:hover{
     color: blue;
 }
 
-.calendar {
+.grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 5px;
     margin: 20px auto;
     max-width: 700px;
+}
+
+.year {
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 400px;
+}
+
+.years {
+    grid-template-columns: repeat(5, 1fr);
+    max-width: 500px;
 }
 
 .weekday {
@@ -37,19 +47,22 @@ h1 a:hover{
     padding: 10px;
 }
 
-.day {
+.block {
     background-color: #ffffff;
     border: 1px solid #ddd;
     padding: 10px;
     height: 75px;
     position: relative;
+    text-decoration: none;
+    font-weight: bold;
+    color: black;
 }
 
-.day:hover {
+.block:hover {
     border: 1px solid #000;
 }
 
-.day.empty {
+.block.empty {
     background-color: transparent;
     border: none;
 }
