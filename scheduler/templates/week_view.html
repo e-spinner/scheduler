@@ -6,7 +6,21 @@
     <link rel="stylesheet" href="/static/css/week.css">
 </head>
 <body>
-    <h1>Week View</h1>
+    <h1>
+        <a href="/week_view?year={{ prev_year }}&month={{ prev_month }}&day={{ prev_day }}">←</a>
+        <a class="label" href="/?year={{ year }}&month={{ month }}">{{ week_days[0].date() }} - {{ week_days[6].date() }}</a>
+        <a href="/week_view?year={{ next_year }}&month={{ Next_month }}&day={{ next_day }}">→</a>
+    </h1>
+    <div class="weekdays">
+        <div class="weekday">Sun</div>
+        <div class="weekday">Mon</div>
+        <div class="weekday">Tue</div>
+        <div class="weekday">Wed</div>
+        <div class="weekday">Thu</div>
+        <div class="weekday">Fri</div>
+        <div class="weekday">Sat</div>
+    </div>
+
     <div class="week-grid">
         <div class="time-labels">
             {% for hour in range(start_hour, start_hour + 16) %}

@@ -25,7 +25,7 @@ class Slot(TimeWindow):
     
     @property
     def adj_start(self) -> datetime:
-        return self.start + (self.duration - self.capacity)
+        return self.start + (self.duration - self.capacity);
         
 @dataclass
 class Event(TimeWindow):

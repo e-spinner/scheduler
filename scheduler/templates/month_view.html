@@ -2,6 +2,11 @@
 <html>
 <head>
     <link rel="stylesheet" href="/static/css/calendar.css">
+    <script>
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+        });
+    </script>
 </head>
 <body>
     <h1>
@@ -13,13 +18,13 @@
 
     <div class="grid">
         <!-- Weekday Headers -->
+        <div class="weekday">Sun</div>
         <div class="weekday">Mon</div>
         <div class="weekday">Tue</div>
         <div class="weekday">Wed</div>
         <div class="weekday">Thu</div>
         <div class="weekday">Fri</div>
         <div class="weekday">Sat</div>
-        <div class="weekday">Sun</div>
 
         <!-- Empty Slots for Alignment -->
         {% for _ in range(start_weekday) %}

@@ -24,15 +24,27 @@ def week_view():
     # Find the start of the week (Monday)
     selected_date = datetime(year, month, day)
     start_of_week = selected_date - timedelta(days=selected_date.weekday())
+    prev_week_start = start_of_week - timedelta(days=7)
+    next_week_start = start_of_week + timedelta(days=7)
 
     # Generate week days
     week_days = [(start_of_week + timedelta(days=i)) for i in range(7)]
+
 
     return render_template(
         'week_view.html',
         week_days=week_days,
         start_hour=start_hour,
-        hours_range=list(range(start_hour, start_hour + 16))  # 16-hour range
+        hours_range=list(range(start_hour, start_hour + 16)),  # 16-hour range
+        year=year,
+        month=month,
+        day=day,
+        prev_day=prev_week_start.day,
+        prev_month=prev_week_start.month,
+        prev_year=prev_week_start.year,
+        next_day=next_week_start.day,
+        next_month=next_week_start.month,
+        next_year=next_week_start.year
     )
     
 @app.route('/save_slots', methods=['POST'])
@@ -50,7 +62,7 @@ def month_view():
         month=month,
         month_name=month_abbr[month],
         events_by_day=storage.get_scheduled_events(year, month),
-        start_weekday=datetime(year, month, 1).weekday(),
+        start_weekday=datetime(year, month, 1).weekday()+1,
         num_days=monthrange(year, month)[1],
         prev_month=(month - 1) if month > 1 else 12,
         prev_year=year if month > 1 else year - 1,
