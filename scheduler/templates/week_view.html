@@ -4,12 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/css/week.css">
+    <script>
+        const startHour = {{ start_hour }};
+        const year = {{ year }};
+        const month = {{ month }};
+        const day = {{ day }};
+    </script>
 </head>
 <body>
     <h1>
         <a href="/week_view?year={{ prev_year }}&month={{ prev_month }}&day={{ prev_day }}">←</a>
         <a class="label" href="/?year={{ year }}&month={{ month }}">{{ week_days[0].date() }} - {{ week_days[6].date() }}</a>
-        <a href="/week_view?year={{ next_year }}&month={{ Next_month }}&day={{ next_day }}">→</a>
+        <a href="/week_view?year={{ next_year }}&month={{ next_month }}&day={{ next_day }}">→</a>
     </h1>
     <div class="weekdays">
         <div class="weekday">Sun</div>
@@ -38,12 +44,18 @@
             {% endfor %}
         </div>
         <div class="week-container">
-            {% for day in range(7) %}
-                <div class="day-column" data-day="{{ day }}"></div>
-            {% endfor %}
+            
+            <div class="day-column weekend" data-day="0"></div>
+            <div class="day-column" data-day="1"></div>
+            <div class="day-column" data-day="2"></div>
+            <div class="day-column" data-day="3"></div>
+            <div class="day-column" data-day="4"></div>
+            <div class="day-column" data-day="5"></div>
+            <div class="day-column weekend" data-day="6"></div>
         </div>
     </div>
-    <button id="saveSlots">Save</button>
+
+    <button id="save">Save</button>
     <script src="/static/js/week.js"></script>
 </body>
 </html>

@@ -49,7 +49,13 @@ def week_view():
     
 @app.route('/save_slots', methods=['POST'])
 def save_slots():
-    pass
+    try:
+        data = request.json
+        print("Received Slots Data:", data)
+        return {"message": "Slots received successfully"}
+    except Exception as e:
+        print("Error:", e)
+        return {"message": "Error processing data"}, 500
 
 @app.route('/')
 def month_view():

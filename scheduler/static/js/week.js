@@ -224,16 +224,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+    window.addEventListener('resize', function(e) {
+        e.preventDefault();
+        // Reset to original size
+        window.resizeTo(800, 800);
+    });
 
 
-    document.getElementById("saveBtn").addEventListener("click", () => {
+    document.getElementById("save").addEventListener("click", () => {
         const slots = [];
         document.querySelectorAll(".slot").forEach(slot => {
-            const day = slot.parentElement.dataset.day;
             const start = parseInt(slot.style.top) / 60 + startHour;
             const duration = parseInt(slot.style.height) / 60;
 
-            slots.push({ day, start, duration });
+            slots.push({ year, month, day, start, duration });
         });
 
         fetch("/save_slots", {

@@ -2,6 +2,7 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f5f5f5;
     text-align: center;
+    user-select: none;
 }
 
 h1 {
@@ -50,7 +51,7 @@ h1 a:hover{
 .block {
     background-color: #ffffff;
     border: 1px solid #ddd;
-    padding: 10px;
+    padding-bottom: 10px;
     height: 75px;
     position: relative;
     text-decoration: none;
@@ -67,10 +68,19 @@ h1 a:hover{
     border: none;
 }
 
+.block.weekend {
+    background-color: #DDD;
+}
+
 .date {
     text-decoration: none;
     font-weight: bold;
     color: black;
+}
+
+.date-box {
+    border-bottom: 1px solid #000;
+    background-color: rgb(100 100 100 / 25%);
 }
 
 .events {
