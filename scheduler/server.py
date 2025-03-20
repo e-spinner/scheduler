@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from flaskwebgui import FlaskUI
 
-import sqlite3
 from database import SchedulerStorage
 from model import Scheduler
 
@@ -15,6 +14,10 @@ ui = FlaskUI(server="flask", app=app, width=800, height=800);
 
 scheduler = Scheduler();
 storage = SchedulerStorage(scheduler);
+
+# ======== #
+# CALENDAR #
+# ======== #
 
 @app.route('/week_view')
 def week_view():
@@ -48,8 +51,8 @@ def week_view():
         next_day=next_week_start.day,
         next_month=next_week_start.month,
         next_year=next_week_start.year
-    )
-    
+    );
+      
 @app.route('/')
 def month_view():
     year = int(request.args.get('year', datetime.now().year));
@@ -89,11 +92,43 @@ def years_view():
         end_year=current_year + 5
     );
 
+# ======== #
+# SETTINGS #
+# ======== #
+
+@app.route('/settings')
+def settings():
+    return render_template('base.html');
+
+# ======== #
+# SHEDULER #
+# ======== #
+
+@app.route('/scheduler')
+def scheduler():
+    return render_template('base.html');
+
+# ============ #
+# EVENT EDITOR #
+# ============ #
+
+@app.route('/event_editor')
+def event_editor():
+    return render_template('base.html');
+
+# ================ #
+# HELPER FUNCTIONS #
+# ================ #
+
 def get_week_start(date: datetime) -> datetime:
     weekday = date.weekday();
     weekday = 0 if weekday == 6 else weekday + 1;
     
     return date - timedelta(days=weekday);
+
+# ==================== #
+# DATABASE INTEGRATION #
+# ==================== #
 
 @app.route('/save_slots', methods=['POST'])
 def save_slots():
@@ -177,6 +212,9 @@ def get_slots():
     finally:
         conn.close();
 
+# =========== #
+# DRIVER CODE #
+# =========== #
 
 if __name__ == "__main__":
     ui.run();

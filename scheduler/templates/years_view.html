@@ -1,21 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" href="/static/css/calendar.css">
-    <script>
-        document.addEventListener("contextmenu", function (e) {
-            e.preventDefault();
-        });
-    </script>
-</head>
-<body>
-    <h1>Select a Year</h1>
-    
-    <div class="grid years">
-        {% for y in range(start_year, end_year + 1) %}
-            <a href="/year_view?year={{ y }}" class="block">{{ y }}</a>
-        {% endfor %}
-    </div>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block content %}
+<link rel="stylesheet" href="/static/css/calendar.css">
+<h1>Select a Year</h1>
+
+<div class="grid years">
+    {% for y in range(start_year, end_year + 1) %}
+        <a href="/year_view?year={{ y }}" class="block">{{ y }}</a>
+    {% endfor %}
+</div>
+{% endblock %}

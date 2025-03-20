@@ -1,0 +1,36 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.nav-bar {
+    display: flex;
+    justify-content: flex-start;
+    background-color: #DDD;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.nav-bar a {
+    color: Black;
+    padding: 14px 20px;
+    text-decoration: none;
+    font-weight: bold;
+    text-align: center;
+}
+
+.nav-bar a:hover {
+    border: 1px black solid;
+}
+
+.nav-bar a.active {
+    background-color: #bbb;
+    border-bottom: 3px black solid;
+}
+
+.content {
+    margin-top: 45px; /* Prevent content from overlapping navbar */
+}

@@ -167,7 +167,11 @@ document.addEventListener("DOMContentLoaded", () => {
         currentSlot = null;
     }
     
-    // Update event listeners in addSlotEvents
+
+    /* ==================  *
+    |  Slot Event Handler  |
+    *  ================== */
+
     function addSlotEvents(slot) {
         slot.addEventListener("mousedown", (e) => {
             if (e.target.classList.contains("resize-handle")) return;
@@ -232,6 +236,9 @@ document.addEventListener("DOMContentLoaded", () => {
         window.resizeTo(800, 800);
     });
 
+    /* ====================  *
+    |  DATABASE INTEGRATION  |
+    *  ==================== */
 
     document.getElementById("save").addEventListener("click", () => {
         const slots = [];

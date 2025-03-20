@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/css/base.css">
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        const links = document.querySelectorAll(".nav-bar a");
+        const currentPath = window.location.pathname;
+
+        links.forEach(link => {
+            if (link.getAttribute("href") === currentPath) {
+            link.classList.add("active");
+            } else if (
+                (currentPath === '/week_view' ||
+                currentPath === '/year_view' ||
+                currentPath === '/years_view' ) &&
+                link.getAttribute("href") === '/'
+             ) {
+                link.classList.add("active");
+             }
+        });
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+        });
+        });
+    </script>
+</head>
+
+<body>
+
+    <!-- NAV-BAR -->
+
+    <div class="nav-bar">
+        <a href="/settings">Settings</a>
+        <a href="/">Calendar</a>
+        <a href="/event_editor">Event Editor</a>
+        <a href="/scheduler">Scheduler</a>
+    </div>
+
+    <div class="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+
+</html>

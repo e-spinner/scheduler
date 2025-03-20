@@ -1,59 +1,49 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" href="/static/css/calendar.css">
-    <script>
-        document.addEventListener("contextmenu", function (e) {
-            e.preventDefault();
-        });
-    </script>
-</head>
-<body>
-    <h1>
-        <a href="/?year={{ prev_year }}&month={{ prev_month }}">←</a>
-        <a href="/year_view?year={{ year }}">{{ month_name }} - <span id="year-link">{{ year }}</span></a>
-        <a href="/?year={{ next_year }}&month={{ next_month }}">→</a>
-    </h1>
-    
+{% extends 'base.html' %}
 
-    <div class="grid">
-        <!-- Weekday Headers -->
-        <div class="weekday">Sun</div>
-        <div class="weekday">Mon</div>
-        <div class="weekday">Tue</div>
-        <div class="weekday">Wed</div>
-        <div class="weekday">Thu</div>
-        <div class="weekday">Fri</div>
-        <div class="weekday">Sat</div>
+{% block content %}
+<link rel="stylesheet" href="/static/css/calendar.css">
+<h1>
+    <a href="/?year={{ prev_year }}&month={{ prev_month }}">←</a>
+    <a href="/year_view?year={{ year }}">{{ month_name }} - <span id="year-link">{{ year }}</span></a>
+    <a href="/?year={{ next_year }}&month={{ next_month }}">→</a>
+</h1>
 
-        <!-- Empty Slots for Alignment -->
-        {% if start_weekday < 7 %}
-            {% for _ in range(start_weekday) %}
-                <div class="block empty"></div>
-            {% endfor %}
-        {% endif %}
+<div class="grid">
+    <!-- Weekday Headers -->
+    <div class="weekday">Sun</div>
+    <div class="weekday">Mon</div>
+    <div class="weekday">Tue</div>
+    <div class="weekday">Wed</div>
+    <div class="weekday">Thu</div>
+    <div class="weekday">Fri</div>
+    <div class="weekday">Sat</div>
 
-        <!-- Days of the Month -->
-        {% for day in range(1, num_days+1) %}
-            {% set day_of_week = (start_weekday + day - 1) % 7 %}   
-            <div class="block{% if day_of_week == 0 or day_of_week == 6 %} weekend{% endif %}">
-                <a class="date" href="/week_view?year={{ year }}&month={{ month }}&day={{ day }}">
-                    <div class="date-box">{{ day }}</div>
-                </a>
-                
-                
-                {% if day in events_by_day %}
-                    <div class="events">
-                        {% for event in events_by_day[day] %}
-                            <div class="event">
-                                {{ event.start.strftime('%H:%M') }} - {{ event.end.strftime('%H:%M') }}
-                                (Priority: {{ event.priority }})
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
+    <!-- Empty Slots for Alignment -->
+    {% if start_weekday < 7 %}
+        {% for _ in range(start_weekday) %}
+        <div class="block empty"></div>
         {% endfor %}
-    </div>
-</body>
-</html>
+    {% endif %}
+
+    <!-- Days of the Month -->
+    {% for day in range(1, num_days+1) %}
+        {% set day_of_week = (start_weekday + day - 1) % 7 %}
+        <div class="block{% if day_of_week == 0 or day_of_week == 6 %} weekend{% endif %}">
+        <a class="date" href="/week_view?year={{ year }}&month={{ month }}&day={{ day }}">
+            <div class="date-box">{{ day }}</div>
+        </a>
+
+        {% if day in events_by_day %}
+            <div class="events">
+            {% for event in events_by_day[day] %}
+                <div class="event">
+                {{ event.start.strftime('%H:%M') }} - {{ event.end.strftime('%H:%M') }}
+                (Priority: {{ event.priority }})
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

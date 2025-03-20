@@ -1,62 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/css/week.css">
-    <script>
-        const startHour = {{ start_hour }};
-        const year = {{ year }};
-        const month = {{ month }};
-        const day = {{ day }};
-    </script>
-</head>
-<body>
-    <h1>
-        <a href="/week_view?year={{ prev_year }}&month={{ prev_month }}&day={{ prev_day }}">←</a>
-        <a class="label" href="/?year={{ year }}&month={{ month }}">{{ week_days[0].date() }} - {{ week_days[6].date() }}</a>
-        <a href="/week_view?year={{ next_year }}&month={{ next_month }}&day={{ next_day }}">→</a>
-    </h1>
-    <div class="weekdays">
-        <div class="weekday">Sun</div>
-        <div class="weekday">Mon</div>
-        <div class="weekday">Tue</div>
-        <div class="weekday">Wed</div>
-        <div class="weekday">Thu</div>
-        <div class="weekday">Fri</div>
-        <div class="weekday">Sat</div>
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="/static/css/week.css">
+<h1>
+    <a href="/week_view?year={{ prev_year }}&month={{ prev_month }}&day={{ prev_day }}">←</a>
+    <a class="label" href="/?year={{ year }}&month={{ month }}">{{ week_days[0].date() }} - {{ week_days[6].date() }}</a>
+    <a href="/week_view?year={{ next_year }}&month={{ next_month }}&day={{ next_day }}">→</a>
+</h1>
+<div class="weekdays">
+    <div class="weekday">Sun</div>
+    <div class="weekday">Mon</div>
+    <div class="weekday">Tue</div>
+    <div class="weekday">Wed</div>
+    <div class="weekday">Thu</div>
+    <div class="weekday">Fri</div>
+    <div class="weekday">Sat</div>
+</div>
+
+<div class="week-grid">
+    <div class="time-labels">
+        {% for hour in range(start_hour, start_hour + 16) %}
+            <div class="time-label">{{ hour }}:00</div>
+        {% endfor %}
     </div>
-
-    <div class="week-grid">
-        <div class="time-labels">
-            {% for hour in range(start_hour, start_hour + 16) %}
-                <div class="time-label">{{ hour }}:00</div>
-            {% endfor %}
-        </div>
-        <div class="grid-lines">
-            {% for hour in range(start_hour, start_hour + 16) %}
-                {% if hour != start_hour %}
-                    <div class="hour"></div>
-                {% endif %}
-                <div class="quarter"></div>
-                <div class="quarter"></div>
-                <div class="quarter"></div>
-            {% endfor %}
-        </div>
-        <div class="week-container">
-            
-            <div class="day-column weekend" data-day="{{ week_days[0].day }}" data-month="{{ week_days[0].month }}" data-year="{{ week_days[0].year }}"></div>
-            <div class="day-column" data-day="{{ week_days[1].day }}" data-month="{{ week_days[1].month }}" data-year="{{ week_days[1].year }}"></div>
-            <div class="day-column" data-day="{{ week_days[2].day }}" data-month="{{ week_days[2].month }}" data-year="{{ week_days[2].year }}"></div>
-            <div class="day-column" data-day="{{ week_days[3].day }}" data-month="{{ week_days[3].month }}" data-year="{{ week_days[3].year }}"></div>
-            <div class="day-column" data-day="{{ week_days[4].day }}" data-month="{{ week_days[4].month }}" data-year="{{ week_days[4].year }}"></div>
-            <div class="day-column" data-day="{{ week_days[5].day }}" data-month="{{ week_days[5].month }}" data-year="{{ week_days[5].year }}"></div>
-            <div class="day-column weekend" data-day="{{ week_days[6].day }}" data-month="{{ week_days[6].month }}" data-year="{{ week_days[6].year }}"></div>
-        </div>
+    <div class="grid-lines">
+        {% for hour in range(start_hour, start_hour + 16) %}
+            {% if hour != start_hour %}
+                <div class="hour"></div>
+            {% endif %}
+            <div class="quarter"></div>
+            <div class="quarter"></div>
+            <div class="quarter"></div>
+        {% endfor %}
     </div>
+    <div class="week-container">
+        {% for i in range(7) %}
+            <div class="day-column {% if i == 0 or i == 6 %} weekend {% endif %}" 
+                data-day="{{ week_days[i].day }}" 
+                data-month="{{ week_days[i].month }}" 
+                data-year="{{ week_days[i].year }}">
+            </div>
+        {% endfor %}
+    </div>
+</div>
 
-    <button id="save">Save</button>
-    <script src="/static/js/week.js"></script>
-</body>
-</html>
-
+<button id="save">Save</button>
+<script>
+    const startHour = {{ start_hour }};
+    const year = {{ year }};
+    const month = {{ month }};
+    const day = {{ day }};
+</script>
+<script src="/static/js/week.js"></script>
+{% endblock %}

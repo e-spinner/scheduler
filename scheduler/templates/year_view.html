@@ -1,29 +1,18 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" href="/static/css/calendar.css">
-    <script>
-        document.addEventListener("contextmenu", function (e) {
-            e.preventDefault();
-        });
-    </script>
-</head>
-<body>
-    <h1>
-        <a href="/year_view?year={{ year - 1 }}">←</a>
-        <a href="/years_view?year={{ year }}">{{ year }}</a>
-        <a href="/year_view?year={{ year + 1 }}">→</a>
-    </h1>
+{% extends 'base.html' %}
 
-    <div class="grid year">
-        {% for month in range(12) %}
-            <a href="/?year={{ year }}&month={{ month+1 }}" class="block">
-                {{ month_names[month] }}
-            </a>
-        {% endfor %}
-    </div>
-    
-    
+{% block content %}
+<link rel="stylesheet" href="/static/css/calendar.css">
+<h1>
+    <a href="/year_view?year={{ year - 1 }}">←</a>
+    <a href="/years_view?year={{ year }}">{{ year }}</a>
+    <a href="/year_view?year={{ year + 1 }}">→</a>
+</h1>
 
-</body>
-</html>
+<div class="grid year">
+    {% for month in range(12) %}
+        <a href="/?year={{ year }}&month={{ month+1 }}" class="block">
+            {{ month_names[month] }}
+        </a>
+    {% endfor %}
+</div>
+{% endblock %}
