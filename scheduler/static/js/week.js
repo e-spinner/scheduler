@@ -234,18 +234,52 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("save").addEventListener("click", () => {
         const slots = [];
         document.querySelectorAll(".slot").forEach(slot => {
-            const start = parseInt(slot.style.top) / 60 + startHour;
-            const duration = parseInt(slot.style.height) / 60;
+            const parentColumn = slot.parentElement;
+            const slot_day = parseInt(parentColumn.getAttribute('data-day'));
+            const slot_month = parseInt(parentColumn.getAttribute('data-month'));
+            const slot_year = parseInt(parentColumn.getAttribute('data-year'));
+            const start = (parseInt(slot.style.top) + (startHour * 60));
+            const duration = parseInt(slot.style.height);
 
-            slots.push({ year, month, day, start, duration });
+            slots.push({ slot_year, slot_month, slot_day, start, duration });
         });
+
+        date = [year, month, day];
 
         fetch("/save_slots", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ slots }),
+            body: JSON.stringify({ slots, date }),
         }).then(response => response.json()).then(data => {
-            alert(data.message);
+            console.log(data);
         });
     });
+
+    loadSlots(year, month, day);
+
+    function loadSlots(year, month, day) {
+        fetch(`/get_slots?year=${year}&month=${month}&day=${day}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log((data.slots));
+    
+                data.slots.forEach(slot => {
+                    const column = document.querySelector(`.day-column[data-day='${slot.day}']`);
+                    if (column) {
+                        const slotDiv = document.createElement("div");
+                        slotDiv.classList.add("slot");
+                        slotDiv.style.top = (slot.start) + "px";
+                        slotDiv.style.height = (slot.duration) + "px";
+                        const handle = document.createElement("div");
+                        handle.classList.add("resize-handle");
+                        slotDiv.appendChild(handle);
+                        column.appendChild(slotDiv);
+                        addSlotEvents(slotDiv);
+                    }
+                });
+                
+            });
+    }
+    
 });
+

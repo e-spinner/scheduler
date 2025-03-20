@@ -1,4 +1,4 @@
-from sqlite3 import connect, IntegrityError
+from sqlite3 import connect, IntegrityError, Row
 from datetime import datetime, timedelta
 from model import Slot, Event, Scheduler
 from typing import List
@@ -11,7 +11,7 @@ class SchedulerStorage:
         self._initialize_db();
         
         self.scheduler = scheduler;
-        self._load_data();
+        # self._load_data();
 
     def _initialize_db(self) -> None:
         """Create tables if they don't exist."""
@@ -21,7 +21,7 @@ class SchedulerStorage:
                 CREATE TABLE IF NOT EXISTS slots (
                     start DATETIME NOT NULL,
                     end DATETIME NOT NULL,
-                    percent_left REAL NOT NULL,
+                    percent_left REAL NOT NULL default 1.0,
                     priority INTEGER NOT NULL,
                     PRIMARY KEY(start, end)
                 );
@@ -44,6 +44,11 @@ class SchedulerStorage:
         """Fill scheduler with prexisting data"""
         self.scheduler.slots = self.get_future_slots();
         self.scheduler.events = self.get_schedulable_events();
+        
+    def get_db_connection(self):
+        conn = connect('database.db');
+        conn.row_factory = Row;
+        return conn;
         
     def add_slot(self, slot: Slot) -> None:
         """Insert a new slot into the database."""
