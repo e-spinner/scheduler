@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let defaultHeight = "60px";
 
     let holdTimer = null;
-    let holdThreshold = 400; // 300ms hold duration
+    let holdThreshold = 300; // 300ms hold duration
     let holdStartX = 0;
     let holdStartY = 0;
 
@@ -70,7 +70,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const existingBottom = existingTop + existingSlot.offsetHeight;
             
             // Check if there's any overlap
-            if (slotTop < existingBottom && slotBottom > existingTop) {
+            const overlap = (slotBottom > existingTop + 5 && slotTop < existingBottom - 5);
+
+            if (overlap) {
                 return true;
             }
         }
@@ -91,12 +93,11 @@ document.addEventListener("DOMContentLoaded", () => {
         newY = Math.max(0, Math.min(newY, maxBottom - containerRect.top - currentSlot.offsetHeight));
         newY = Math.floor(newY / 15) * 15; // Maintain 15-minute grid
         
-        // Check collision before moving
-        if (!checkCollision(currentSlot, currentSlot.parentElement)) {
-            currentSlot.style.top = newY + "px";
-        } else {
-            // Move back to previous position if collision detected
-            newY = parseInt(currentSlot.style.top);
+        const originalY = parseInt(currentSlot.style.top);
+        currentSlot.style.top = newY + "px";
+    
+        if (checkCollision(currentSlot, container)) {
+            currentSlot.style.top = originalY + "px"; // Revert if colliding
         }
     }
     
@@ -114,7 +115,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const maxHeight = maxBottom - containerRect.top - parseInt(currentSlot.style.top);
         const snappedHeight = Math.max(minHeight, Math.min(Math.floor(newHeight / 15) * 15, maxHeight));
         
-        // Only update height if it doesn't cause collision
+        currentSlot.style.height = snappedHeight + "px";
+
         if (!checkCollision(currentSlot, container)) {
             currentSlot.style.height = snappedHeight + "px";
         }
