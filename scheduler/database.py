@@ -28,7 +28,8 @@ class SchedulerStorage:
                     due_date DATETIME NOT NULL,
                     min_time INTEGER NOT NULL,
                     max_time INTEGER NOT NULL,
-                    priority INTEGER NOT NULL
+                    priority INTEGER NOT NULL,
+                    completed BOOLEAN DEFAULT 0
                 );
             """);
             conn.commit();

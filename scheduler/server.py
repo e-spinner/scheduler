@@ -101,12 +101,12 @@ def settings():
     return render_template('base.html');
 
 # ======== #
-# SHEDULER #
+# TASKS    #
 # ======== #
 
-@app.route('/scheduler')
-def scheduler():
-    return render_template('base.html');
+@app.route('/tasks')
+def tasks():
+    return render_template('tasks.html');
 
 # ============ #
 # EVENT EDITOR #
@@ -120,7 +120,7 @@ def event_editor():
         cursor = conn.cursor();
 
         today = datetime.now().strftime('%Y-%m-%d');
-        cursor.execute("SELECT * FROM events WHERE due_date >= ? ORDER BY due_date ASC", (today,));
+        cursor.execute("SELECT * FROM events WHERE completed = 0 AND due_date >= ? ORDER BY due_date ASC", (today,));
         events = [dict(row) for row in cursor.fetchall()]
         
         for row in events:
@@ -306,6 +306,24 @@ def delete_event(event_id):
     finally:
         conn.close();
 
+@app.route('/set_done/<int:event_id>/<int:done>', methods=['POST'])
+def set_done(event_id, done):
+    try:
+        conn = storage.get_db_connection();
+        cursor = conn.cursor();
+
+        cursor.execute("""
+            UPDATE events
+            SET completed = ?
+            WHERE id = ?
+        """, (done, event_id,));
+        conn.commit();
+
+        return jsonify({'success': True});
+    except Exception as e:
+        return jsonify({'error': str(e)});
+    finally:
+        conn.close();
 
 # =========== #
 # DRIVER CODE #
