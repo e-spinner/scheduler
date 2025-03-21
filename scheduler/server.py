@@ -100,14 +100,6 @@ def years_view():
 def settings():
     return render_template('base.html');
 
-# ======== #
-# TASKS    #
-# ======== #
-
-@app.route('/tasks')
-def tasks():
-    return render_template('tasks.html');
-
 # ============ #
 # EVENT EDITOR #
 # ============ #
@@ -120,22 +112,49 @@ def event_editor():
         cursor = conn.cursor();
 
         today = datetime.now().strftime('%Y-%m-%d');
-        cursor.execute("SELECT * FROM events WHERE completed = 0 AND due_date >= ? ORDER BY due_date ASC", (today,));
-        events = [dict(row) for row in cursor.fetchall()]
+        cursor.execute("""SELECT * FROM events 
+                          WHERE completed = 0 
+                          AND due_date >= ? 
+                          AND start >= ? 
+                          ORDER BY start ASC, due_date ASC""", (today, today));
+        scheduled = [dict(row) for row in cursor.fetchall()];
         
-        for row in events:
+        cursor.execute("""SELECT * FROM events 
+                          WHERE completed = 0 
+                          AND due_date >= ? 
+                          AND start is NULL 
+                          ORDER BY due_date ASC""", (today,));
+        unscheduled = [dict(row) for row in cursor.fetchall()];
+        
+        cursor.execute("""SELECT * FROM events 
+                          WHERE completed = 1 
+                          ORDER BY due_date ASC""");
+        completed = [dict(row) for row in cursor.fetchall()];
+        
+        for row in scheduled:
             due_date = datetime.fromisoformat(row['due_date']);
             row['due_date'] = f'{due_date.month}/{due_date.day} @ {due_date.hour}:{str(due_date.minute).zfill(2)}';
             
-            if row['start']:
-                start = datetime.fromisoformat(row['start']);
-                end = datetime.fromisoformat(row['end']);
+            start = datetime.fromisoformat(row['start']);
+            end = datetime.fromisoformat(row['end']);
+            
+            time = f'{start.month}/{start.day}, {start.hour}:{str(start.minute).zfill(2)} - {end.hour}:{str(end.minute).zfill(2)}';
+            row['start'] = time;
                 
-                scheduled = f'{start.month}/{start.day}, {start.hour}:{str(start.minute).zfill(2)} - {end.hour}:{str(end.minute).zfill(2)}';
-                row['start'] = scheduled;
+        for row in unscheduled:
+            due_date = datetime.fromisoformat(row['due_date']);
+            row['due_date'] = f'{due_date.month}/{due_date.day} @ {due_date.hour}:{str(due_date.minute).zfill(2)}';
+
+        for row in completed:
+            due_date = datetime.fromisoformat(row['due_date']);
+            row['due_date'] = f'{due_date.month}/{due_date.day} @ {due_date.hour}:{str(due_date.minute).zfill(2)}';
                 
-                
-        return render_template('event_editor.html', events=events);
+        return render_template(
+            'event_editor.html', 
+            scheduled=scheduled,
+            unscheduled=unscheduled,
+            completed=completed
+            );
     except Exception as e:
         return jsonify({'error': str(e)}), 500;
     finally:

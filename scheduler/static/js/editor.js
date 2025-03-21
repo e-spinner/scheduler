@@ -66,3 +66,9 @@ function deleteEvent() {
         .catch(err => console.error('Error:', err));
     }
 }
+
+function toggleDone(eventId, done) {
+    fetch(`/mark_done/${eventId}/${done}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(() => location.reload());
+}

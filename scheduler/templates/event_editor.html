@@ -4,15 +4,37 @@
 <link rel="stylesheet" href="/static/css/editor.css">
 <button id="add-event-btn" onclick="openEventPopup(null)">Add Event</button>
 
-<div id="event-list">
-    {% for event in events %}
+<div id="todo" class="list">
+    {% for event in scheduled %}
     <div class="event-item" onclick="openEventPopup({{ event.id }})" title="click to edit">
         <span class="priority">{{ event.priority }}</span>
         <strong>{{ event.name }}</strong> 
         (Due: {{ event.due_date }})
-        {% if event.start %}
-            <span class="left">Scheduled: {{ event.start }}</span>
-        {% endif %}
+        <span class="right">Scheduled: {{ event.start }}</span>
+        <button onclick="toggleDone({{ event.id }}, 1)">Mark Done</button>
+    </div>
+    {% endfor %}
+</div>
+
+
+<div id="events" class="list">
+    {% for event in unscheduled %}
+    <div class="event-item" onclick="openEventPopup({{ event.id }})" title="click to edit">
+        <span class="priority">{{ event.priority }}</span>
+        <strong>{{ event.name }}</strong> 
+        (Due: {{ event.due_date }})
+    </div>
+    {% endfor %}
+</div>
+
+
+<div id="done" class="list">
+    {% for event in completed %}
+    <div class="event-item" onclick="openEventPopup({{ event.id }})" title="click to edit">
+        <span class="priority">{{ event.priority }}</span>
+        <strong>{{ event.name }}</strong> 
+        (Due: {{ event.due_date }})
+        <button onclick="toggleDone({{ event.id }}, 0)">Unmark Done</button>
     </div>
     {% endfor %}
 </div>
