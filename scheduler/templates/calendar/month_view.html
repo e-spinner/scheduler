@@ -33,16 +33,6 @@
             <div class="date-box">{{ day }}</div>
         </a>
 
-        {% if day in events_by_day %}
-            <div class="events">
-            {% for event in events_by_day[day] %}
-                <div class="event">
-                {{ event.start.strftime('%H:%M') }} - {{ event.end.strftime('%H:%M') }}
-                (Priority: {{ event.priority }})
-                </div>
-            {% endfor %}
-            </div>
-        {% endif %}
         </div>
     {% endfor %}
 </div>

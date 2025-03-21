@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="/static/css/editor.css">
+<button id="add-event-btn" onclick="openEventPopup(null)">Add Event</button>
+
+<div id="event-list">
+    {% for event in events %}
+    <div class="event-item" onclick="openEventPopup({{ event.id }})" title="click to edit">
+        <span class="priority">{{ event.priority }}</span>
+        <strong>{{ event.name }}</strong> 
+        (Due: {{ event.due_date }})
+        {% if event.start %}
+            <span class="left">Scheduled: {{ event.start }}</span>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<div id="popup" class="popup hidden">
+    <form id="event-form">
+        <label>Name: <input type="text" id="event-name" name="name" maxlength="28" placeholder="max 28 characters" required></label>
+        <label>Due Date: <input type="datetime-local" id="event-due-date" name="due_date" required></label>
+        <label>Min Time (mins): <input type="number" id="event-min-time" name="min_time" min="0" placeholder="30" required></label>
+        <label>Max Time (mins): <input type="number" id="event-max-time" name="max_time" min="0" placeholder="180" required></label>
+        <label>Priority: <input type="number" id="event-priority" name="priority" min="1" max="5" placeholder="1 - 5" required></label>
+        <button type="submit">Save</button>
+        <button type="cancel" onclick="closeEventPopup()">Cancel</button>
+        <button type="delete" id="delete-event-btn" onclick="deleteEvent()">Delete</button>
+    </form>
+</div>
+
+<script src="/static/js/editor.js"></script>
+{% endblock %}

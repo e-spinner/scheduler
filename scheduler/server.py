@@ -2,18 +2,19 @@ from flask import Flask, render_template, request, jsonify
 from flaskwebgui import FlaskUI
 
 from database import SchedulerStorage
-from model import Scheduler
+# from model import Scheduler
 
 from datetime import datetime, timedelta
 from calendar import monthrange, month_abbr
+from sqlite3 import Row
 
 def_start_hour = 5;
 
 app = Flask(__name__);
 ui = FlaskUI(server="flask", app=app, width=800, height=800);
 
-scheduler = Scheduler();
-storage = SchedulerStorage(scheduler);
+# scheduler = Scheduler();
+storage = SchedulerStorage();
 
 # ======== #
 # CALENDAR #
@@ -38,7 +39,7 @@ def week_view():
 
 
     return render_template(
-        'week_view.html',
+        'calendar/week_view.html',
         week_days=week_days,
         start_hour=start_hour,
         hours_range=list(range(start_hour, start_hour + 16)),  # 16-hour range
@@ -59,11 +60,10 @@ def month_view():
     month = int(request.args.get('month', datetime.now().month));
 
     return render_template(
-        'month_view.html',
+        'calendar/month_view.html',
         year=year,
         month=month,
         month_name=month_abbr[month],
-        events_by_day=storage.get_scheduled_events(year, month),
         start_weekday=datetime(year, month, 1).weekday()+1,
         num_days=monthrange(year, month)[1],
         prev_month=(month - 1) if month > 1 else 12,
@@ -77,7 +77,7 @@ def year_view():
     year = int(request.args.get('year', datetime.now().year));
 
     return render_template(
-        'year_view.html',
+        'calendar/year_view.html',
         year=year,
         month_names=[month_abbr[m] for m in range(1, 13)]
     );
@@ -87,7 +87,7 @@ def years_view():
     current_year = int(request.args.get('year', datetime.now().year));
 
     return render_template(
-        'years_view.html',
+        'calendar/years_view.html',
         start_year=datetime.now().year,
         end_year=current_year + 5
     );
@@ -114,7 +114,32 @@ def scheduler():
 
 @app.route('/event_editor')
 def event_editor():
-    return render_template('base.html');
+    
+    try:
+        conn = storage.get_db_connection();
+        cursor = conn.cursor();
+
+        today = datetime.now().strftime('%Y-%m-%d');
+        cursor.execute("SELECT * FROM events WHERE due_date >= ? ORDER BY due_date ASC", (today,));
+        events = [dict(row) for row in cursor.fetchall()]
+        
+        for row in events:
+            due_date = datetime.fromisoformat(row['due_date']);
+            row['due_date'] = f'{due_date.month}/{due_date.day} @ {due_date.hour}:{str(due_date.minute).zfill(2)}';
+            
+            if row['start']:
+                start = datetime.fromisoformat(row['start']);
+                end = datetime.fromisoformat(row['end']);
+                
+                scheduled = f'{start.month}/{start.day}, {start.hour}:{str(start.minute).zfill(2)} - {end.hour}:{str(end.minute).zfill(2)}';
+                row['start'] = scheduled;
+                
+                
+        return render_template('event_editor.html', events=events);
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500;
+    finally:
+        conn.close();
 
 # ================ #
 # HELPER FUNCTIONS #
@@ -134,8 +159,6 @@ def get_week_start(date: datetime) -> datetime:
 def save_slots():
     data = request.json.get('slots', []);
     date = request.json.get('date', []);
-
-    print(date);
     
     try:
         conn = storage.get_db_connection();
@@ -154,7 +177,6 @@ def save_slots():
 
         # Insert new slots
         if data:
-            print("data found")
             for slot in data:
                 start = datetime(slot['slot_year'], slot['slot_month'], slot['slot_day'], int(slot['start'] / 60), int(slot['start']) % 60);
                 end = start + timedelta(minutes=slot['duration']);
@@ -211,6 +233,79 @@ def get_slots():
 
     finally:
         conn.close();
+
+@app.route('/get_event/<int:event_id>')
+def get_event(event_id):
+    try:
+        conn = storage.get_db_connection();
+        cursor = conn.cursor();
+
+        cursor.execute("SELECT * FROM events WHERE id = ?", (event_id,));
+        event = cursor.fetchone();
+
+        if event:
+            return jsonify(dict(event));
+        else:
+            return jsonify({'error': 'Event not found'}), 404;
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500;
+    finally:
+        conn.close();
+
+@app.route('/add_event', methods=['POST'])
+def add_event():
+    data = request.json;
+    try:
+        conn = storage.get_db_connection();
+        cursor = conn.cursor();
+
+        cursor.execute("""
+            INSERT INTO events (name, due_date, min_time, max_time, priority)
+            VALUES (?, ?, ?, ?, ?)
+        """, (data['name'], data['due_date'], data['min_time'], data['max_time'], data['priority']));
+
+        conn.commit();
+        return jsonify({'message': 'Event added successfully'});
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500;
+    finally:
+        conn.close();
+
+@app.route('/update_event/<int:event_id>', methods=['POST'])
+def update_event(event_id):
+    data = request.json;
+    try:
+        conn = storage.get_db_connection();
+        cursor = conn.cursor();
+
+        cursor.execute("""
+            UPDATE events
+            SET name = ?, due_date = ?, min_time = ?, max_time = ?, priority = ?
+            WHERE id = ?
+        """, (data['name'], data['due_date'], data['min_time'], data['max_time'], data['priority'], event_id));
+
+        conn.commit();
+        return jsonify({'message': 'Event updated successfully'});
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500;
+    finally:
+        conn.close();
+
+@app.route('/delete_event/<int:event_id>', methods=['DELETE'])
+def delete_event(event_id):
+    try:
+        conn = storage.get_db_connection();
+        cursor = conn.cursor();
+
+        cursor.execute("DELETE FROM events WHERE id = ?", (event_id,));
+        conn.commit();
+
+        return jsonify({'message': 'Event deleted successfully'});
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500;
+    finally:
+        conn.close();
+
 
 # =========== #
 # DRIVER CODE #
