@@ -1,3 +1,7 @@
+body {
+    overflow: hidden;
+}
+
 #add-event-btn {
     background-color: #007bff; 
     margin: 10px;
@@ -7,11 +11,45 @@
     background-color: #0056b3;
 }
 
-#event-list {
-    max-height: 400px;
-    overflow-y: auto;
-    padding: 10px;
+.content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: calc(100vh - 60px);
 }
+
+.list-container {
+    margin: 0px 10px 0px 10px;
+    flex: 1;
+    overflow-y: scroll;
+}
+.list-container.collapsed {
+    flex: 0.1;
+}
+
+.collapse-btn {
+    background-color: #f5f5f5;
+    color: #000;
+    padding: 0px;
+    cursor: zoom-out;
+    border: none;
+    width: 100%;
+    border-bottom: 1px solid #000;
+    text-align: left;
+    position: sticky;
+    z-index: 90;
+    top: 0px;
+}
+
+.collapse-btn:hover {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+.list {
+    display: block;
+}
+
 
 .event-item {
     border-bottom: 1px solid #000;
@@ -35,7 +73,7 @@
     background-color: rgba(0,255,0,0.5);
 }
 
-.left {
+.right {
     right: 15px;
     position: absolute;
 }
@@ -96,10 +134,22 @@ button[type="delete"] {
     right: 120px;
 }
 
+button[type="toggle"] {
+    background-color: #00000000;
+    color: #000;
+    position: absolute;
+    right: 15px;
+    padding: 0px;
+}
+
 button[type="cancel"]:hover {
     background-color: #c82333;
 }
 
 button[type="delete"]:hover {
     background-color: #fd283e;
+}
+
+button[type="toggle"]:hover {
+    font-weight: bold;
 }

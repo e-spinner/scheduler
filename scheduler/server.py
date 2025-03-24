@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from calendar import monthrange, month_abbr
 from sqlite3 import Row
 
-def_start_hour = 5;
+def_start_hour = 8;
 
 app = Flask(__name__);
 ui = FlaskUI(server="flask", app=app, width=800, height=800);
@@ -59,18 +59,45 @@ def month_view():
     year = int(request.args.get('year', datetime.now().year));
     month = int(request.args.get('month', datetime.now().month));
 
-    return render_template(
-        'calendar/month_view.html',
-        year=year,
-        month=month,
-        month_name=month_abbr[month],
-        start_weekday=datetime(year, month, 1).weekday()+1,
-        num_days=monthrange(year, month)[1],
-        prev_month=(month - 1) if month > 1 else 12,
-        prev_year=year if month > 1 else year - 1,
-        next_month=(month + 1) if month < 12 else 1,
-        next_year=year if month < 12 else year + 1
-    );
+    try:
+        conn = storage.get_db_connection();
+        cursor = conn.cursor();
+
+        # Fetch events that are scheduled in the selected month and are scheduled
+        cursor.execute("""
+            SELECT start, priority
+            FROM events 
+            WHERE strftime('%Y', start) = ? 
+            AND strftime('%m', start) = ? 
+            AND start is not NULL
+        """, (str(year), str(month).zfill(2)));
+
+        events = cursor.fetchall();
+        num_per_priority = {};
+
+        for event in events:
+            day = datetime.fromisoformat(event['start']).day;
+            if day not in num_per_priority:
+                num_per_priority[day] = [0,0,0,0,0];
+                
+            num_per_priority[day][event['priority']-1] += 1;
+
+        return render_template(
+            'calendar/month_view.html',
+            year=year,
+            month=month,
+            month_name=month_abbr[month],
+            start_weekday=datetime(year, month, 1).weekday()+1,
+            num_days=monthrange(year, month)[1],
+            prev_month=(month - 1) if month > 1 else 12,
+            prev_year=year if month > 1 else year - 1,
+            next_month=(month + 1) if month < 12 else 1,
+            next_year=year if month < 12 else year + 1,
+            num_per_priority=num_per_priority
+        );
+        
+    finally:
+        conn.close()
 
 @app.route('/year_view')
 def year_view():
@@ -133,7 +160,7 @@ def event_editor():
         
         for row in scheduled:
             due_date = datetime.fromisoformat(row['due_date']);
-            row['due_date'] = f'{due_date.month}/{due_date.day} @ {due_date.hour}:{str(due_date.minute).zfill(2)}';
+            row['due_date'] = f'{str(due_date.month).zfill(2)}/{due_date.day} @ {due_date.hour}:{str(due_date.minute).zfill(2)}';
             
             start = datetime.fromisoformat(row['start']);
             end = datetime.fromisoformat(row['end']);
@@ -143,11 +170,11 @@ def event_editor():
                 
         for row in unscheduled:
             due_date = datetime.fromisoformat(row['due_date']);
-            row['due_date'] = f'{due_date.month}/{due_date.day} @ {due_date.hour}:{str(due_date.minute).zfill(2)}';
+            row['due_date'] = f'{str(due_date.month).zfill(2)}/{due_date.day} @ {due_date.hour}:{str(due_date.minute).zfill(2)}';
 
         for row in completed:
             due_date = datetime.fromisoformat(row['due_date']);
-            row['due_date'] = f'{due_date.month}/{due_date.day} @ {due_date.hour}:{str(due_date.minute).zfill(2)}';
+            row['due_date'] = f'{str(due_date.month).zfill(2)}/{due_date.day} @ {due_date.hour}:{str(due_date.minute).zfill(2)}';
                 
         return render_template(
             'event_editor.html', 
