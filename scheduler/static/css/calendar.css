@@ -84,7 +84,7 @@ h1 a:hover{
 
 .events {
     margin: 5px;
-
+    height: 50px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;

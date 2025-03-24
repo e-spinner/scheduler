@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response
 from flaskwebgui import FlaskUI
 
 from database import SchedulerStorage
@@ -20,8 +20,9 @@ storage = SchedulerStorage();
 # CALENDAR #
 # ======== #
 
+# == WEEK == #
 @app.route('/week_view')
-def week_view():
+def week_view() -> str:
     # Get selected date from query parameters
     year = int(request.args.get('year', datetime.now().year));
     month = int(request.args.get('month', datetime.now().month));
@@ -54,8 +55,89 @@ def week_view():
         next_year=next_week_start.year
     );
       
+@app.route('/save_slots', methods=['POST'])
+def save_slots() -> Response:
+    data = request.json.get('slots', []);
+    date = request.json.get('date', []);
+    
+    try:
+        conn = storage.get_db_connection();
+        cursor = conn.cursor();
+
+        # Determine the week start from the first slot
+        date = datetime(date[0], date[1], date[2]);
+        week_start = get_week_start(date);
+        week_end = week_start + timedelta(days=7);
+
+        # Delete existing slots for the week
+        cursor.execute("""
+            DELETE FROM slots
+            WHERE start >= ? AND start < ?
+        """, (week_start, week_end));
+
+        # Insert new slots
+        if data:
+            for slot in data:
+                start = datetime(slot['slot_year'], slot['slot_month'], slot['slot_day'], int(slot['start'] / 60), int(slot['start']) % 60);
+                end = start + timedelta(minutes=slot['duration']);
+                cursor.execute("""
+                    INSERT INTO slots (start, end, percent_left, priority)
+                    VALUES (?, ?, 1.0, ?)
+                """, (start, end, slot['priority']));
+
+        conn.commit();
+        return jsonify({'message': 'Slots saved successfully'});
+
+    except Exception as e:
+        return jsonify({'message': str(e)}), 500;
+
+    finally:
+        conn.close();
+
+@app.route('/get_slots', methods=['GET'])
+def get_slots() -> Response:
+    year = int(request.args.get('year'));
+    month = int(request.args.get('month'));
+    day = int(request.args.get('day'));
+
+    date = datetime(year, month, day);
+    week_start = get_week_start(date);
+    week_end = week_start + timedelta(days=7);
+
+    try:
+        conn = storage.get_db_connection();
+        cursor = conn.cursor();
+        cursor.execute("""
+            SELECT start, end, priority FROM slots
+            WHERE start >= ? AND start < ?
+        """, (week_start, week_end));
+
+        slots = [];
+        
+        for row in cursor.fetchall():
+            start_time = datetime.fromisoformat(row['start']);
+            end_time = datetime.fromisoformat(row['end']);
+            start = start_time.hour * 60 + start_time.minute - def_start_hour * 60;
+            end = end_time.hour * 60 + end_time.minute - def_start_hour * 60;
+            slots.append({
+                'start': start,
+                'duration': end - start,
+                'day': start_time.day,
+                'priority': row['priority']
+            });
+
+
+        return jsonify({'slots': slots});
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500;
+
+    finally:
+        conn.close();
+
+# == MONTH == #
 @app.route('/')
-def month_view():
+def month_view() -> str:
     year = int(request.args.get('year', datetime.now().year));
     month = int(request.args.get('month', datetime.now().month));
 
@@ -97,10 +179,39 @@ def month_view():
         );
         
     finally:
-        conn.close()
+        conn.close();
 
+@app.route('/events_on_day')
+def events_on_day() -> Response:
+    year = int(request.args.get('year', datetime.now().year));
+    month = int(request.args.get('month', datetime.now().month));
+    day = int(request.args.get('day', datetime.now().day));
+    
+    try:
+        conn = storage.get_db_connection();
+        cursor = conn.cursor();
+        
+        cursor.execute("""
+            SELECT start, end, priority
+            FROM events
+            WHERE strftime('%Y', start) = ? 
+            AND strftime('%m', start) = ? 
+            AND strftime('%d', start) = ? 
+            AND start is not NULL
+        """, (str(year), str(month).zfill(2), str(day).zfill(2))),
+        
+        events = cursor.fetchall();
+        
+        print(events)
+        
+        return jsonify(dict(events));
+    
+    finally:
+        conn.close();
+
+# == YEAR == #
 @app.route('/year_view')
-def year_view():
+def year_view() -> str:
     year = int(request.args.get('year', datetime.now().year));
 
     return render_template(
@@ -109,8 +220,9 @@ def year_view():
         month_names=[month_abbr[m] for m in range(1, 13)]
     );
 
+# == YEARS == #
 @app.route('/years_view')
-def years_view():
+def years_view() -> str:
     current_year = int(request.args.get('year', datetime.now().year));
 
     return render_template(
@@ -124,7 +236,7 @@ def years_view():
 # ======== #
 
 @app.route('/settings')
-def settings():
+def settings() -> str:
     return render_template('base.html');
 
 # ============ #
@@ -132,7 +244,7 @@ def settings():
 # ============ #
 
 @app.route('/event_editor')
-def event_editor():
+def event_editor() -> str:
     
     try:
         conn = storage.get_db_connection();
@@ -187,102 +299,8 @@ def event_editor():
     finally:
         conn.close();
 
-# ================ #
-# HELPER FUNCTIONS #
-# ================ #
-
-def get_week_start(date: datetime) -> datetime:
-    weekday = date.weekday();
-    weekday = 0 if weekday == 6 else weekday + 1;
-    
-    return date - timedelta(days=weekday);
-
-# ==================== #
-# DATABASE INTEGRATION #
-# ==================== #
-
-@app.route('/save_slots', methods=['POST'])
-def save_slots():
-    data = request.json.get('slots', []);
-    date = request.json.get('date', []);
-    
-    try:
-        conn = storage.get_db_connection();
-        cursor = conn.cursor();
-
-        # Determine the week start from the first slot
-        date = datetime(date[0], date[1], date[2]);
-        week_start = get_week_start(date);
-        week_end = week_start + timedelta(days=7);
-
-        # Delete existing slots for the week
-        cursor.execute("""
-            DELETE FROM slots
-            WHERE start >= ? AND start < ?
-        """, (week_start, week_end));
-
-        # Insert new slots
-        if data:
-            for slot in data:
-                start = datetime(slot['slot_year'], slot['slot_month'], slot['slot_day'], int(slot['start'] / 60), int(slot['start']) % 60);
-                end = start + timedelta(minutes=slot['duration']);
-                cursor.execute("""
-                    INSERT INTO slots (start, end, percent_left, priority)
-                    VALUES (?, ?, 1.0, ?)
-                """, (start, end, slot['priority']));
-
-        conn.commit();
-        return jsonify({'message': 'Slots saved successfully'});
-
-    except Exception as e:
-        return jsonify({'message': str(e)}), 500;
-
-    finally:
-        conn.close();
-
-@app.route('/get_slots', methods=['GET'])
-def get_slots():
-    year = int(request.args.get('year'));
-    month = int(request.args.get('month'));
-    day = int(request.args.get('day'));
-
-    date = datetime(year, month, day);
-    week_start = get_week_start(date);
-    week_end = week_start + timedelta(days=7);
-
-    try:
-        conn = storage.get_db_connection();
-        cursor = conn.cursor();
-        cursor.execute("""
-            SELECT start, end, priority FROM slots
-            WHERE start >= ? AND start < ?
-        """, (week_start, week_end));
-
-        slots = [];
-        
-        for row in cursor.fetchall():
-            start_time = datetime.fromisoformat(row['start']);
-            end_time = datetime.fromisoformat(row['end']);
-            start = start_time.hour * 60 + start_time.minute - def_start_hour * 60;
-            end = end_time.hour * 60 + end_time.minute - def_start_hour * 60;
-            slots.append({
-                'start': start,
-                'duration': end - start,
-                'day': start_time.day,
-                'priority': row['priority']
-            });
-
-
-        return jsonify({'slots': slots});
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500;
-
-    finally:
-        conn.close();
-
 @app.route('/get_event/<int:event_id>')
-def get_event(event_id):
+def get_event(event_id: int) -> Response:
     try:
         conn = storage.get_db_connection();
         cursor = conn.cursor();
@@ -300,7 +318,7 @@ def get_event(event_id):
         conn.close();
 
 @app.route('/add_event', methods=['POST'])
-def add_event():
+def add_event() -> Response:
     data = request.json;
     try:
         conn = storage.get_db_connection();
@@ -319,7 +337,7 @@ def add_event():
         conn.close();
 
 @app.route('/update_event/<int:event_id>', methods=['POST'])
-def update_event(event_id):
+def update_event(event_id: int) -> Response:
     data = request.json;
     try:
         conn = storage.get_db_connection();
@@ -339,7 +357,7 @@ def update_event(event_id):
         conn.close();
 
 @app.route('/delete_event/<int:event_id>', methods=['DELETE'])
-def delete_event(event_id):
+def delete_event(event_id: int) -> Response:
     try:
         conn = storage.get_db_connection();
         cursor = conn.cursor();
@@ -354,7 +372,7 @@ def delete_event(event_id):
         conn.close();
 
 @app.route('/set_done/<int:event_id>/<int:done>', methods=['POST'])
-def set_done(event_id, done):
+def set_done(event_id: int, done: int) -> Response:
     try:
         conn = storage.get_db_connection();
         cursor = conn.cursor();
@@ -371,6 +389,16 @@ def set_done(event_id, done):
         return jsonify({'error': str(e)});
     finally:
         conn.close();
+
+# ================ #
+# HELPER FUNCTIONS #
+# ================ #
+
+def get_week_start(date: datetime) -> datetime:
+    weekday = date.weekday();
+    weekday = 0 if weekday == 6 else weekday + 1;
+    
+    return date - timedelta(days=weekday);
 
 # =========== #
 # DRIVER CODE #
