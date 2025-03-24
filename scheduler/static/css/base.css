@@ -4,6 +4,11 @@
     --priority-3: #7a65ff;
     --priority-4: #ffe358;
     --priority-5: #ff104e;
+    --priority-1a: #00b3ffb0;
+    --priority-2a: #83ff00b0;
+    --priority-3a: #7a65ffb0;
+    --priority-4a: #ffe358b0;
+    --priority-5a: #ff104eb0;
 }
 
 body {
@@ -42,4 +47,44 @@ body {
 
 .content {
     margin-top: 45px; /* Prevent content from overlapping navbar */
+}
+
+.priority-1 {
+    background-color: var(--priority-1);
+}
+
+.priority-2 {
+    background-color: var(--priority-2);
+}
+
+.priority-3 {
+    background-color: var(--priority-3);
+}
+
+.priority-4 {
+    background-color: var(--priority-4);
+}
+
+.priority-5 {
+    background-color: var(--priority-5);
+}
+
+.priority-1a {
+    background-color: var(--priority-1a);
+}
+
+.priority-2a {
+    background-color: var(--priority-2a);
+}
+
+.priority-3a {
+    background-color: var(--priority-3a);
+}
+
+.priority-4a {
+    background-color: var(--priority-4a);
+}
+
+.priority-5a {
+    background-color: var(--priority-5a);
 }

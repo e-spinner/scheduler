@@ -28,6 +28,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 const slot = document.createElement("div");
                 slot.classList.add("slot");
+                slot.classList.add("priority-1a");
+                slot.setAttribute("data-pri", "1");
                 slot.style.top = snappedY + "px";
                 slot.style.height = defaultHeight;
                 const handle = document.createElement("div");
@@ -46,13 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
         
-        // Add mouseleave handler to cancel hold if mouse leaves element
-        column.addEventListener("mouseleave", () => {
-            if (holdTimer) {
-                clearTimeout(holdTimer);
-                holdTimer = null;
-            }
-        });
     });
 
     function checkCollision(slot, container) {
@@ -196,6 +191,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         slot.addEventListener("contextmenu", (e) => {
             e.preventDefault();
+
+            increasePriority(slot);
+
             holdStartX = e.clientX;
             holdStartY = e.clientY;
             
@@ -215,14 +213,22 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
         
-        // Add mouseleave handler to cancel hold if mouse leaves element
-        slot.addEventListener("mouseleave", () => {
-            if (holdTimer) {
-                clearTimeout(holdTimer);
-                holdTimer = null;
-                slot.classList.remove('holding');
+        
+        function increasePriority(slot) {
+            priority = parseInt(slot.getAttribute("data-pri"), 10);
+
+            if (priority === 5) {
+
+                slot.setAttribute("data-pri", "1");
+                slot.classList.add(`priority-1a`);
+            } else {
+
+                slot.setAttribute("data-pri", `${priority+1}`);
+                slot.classList.add(`priority-${priority+1}a`);
             }
-        });
+
+            slot.classList.remove(`priority-${priority}a`);
+        }
 
         slot.addEventListener("dblclick", () => {
             defaultHeight = slot.style.height;
@@ -249,8 +255,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const slot_year = parseInt(parentColumn.getAttribute('data-year'));
             const start = (parseInt(slot.style.top) + (startHour * 60));
             const duration = parseInt(slot.style.height);
+            const priority = parseInt(slot.getAttribute("data-pri"))
 
-            slots.push({ slot_year, slot_month, slot_day, start, duration });
+            slots.push({ slot_year, slot_month, slot_day, start, duration, priority});
         });
 
         date = [year, month, day];
@@ -279,6 +286,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         slotDiv.classList.add("slot");
                         slotDiv.style.top = (slot.start) + "px";
                         slotDiv.style.height = (slot.duration) + "px";
+                        slotDiv.setAttribute("data-pri", `${slot.priority}`)
+                        slotDiv.classList.add(`priority-${slot.priority}a`)
                         const handle = document.createElement("div");
                         handle.classList.add("resize-handle");
                         slotDiv.appendChild(handle);

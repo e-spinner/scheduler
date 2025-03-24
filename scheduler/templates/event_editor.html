@@ -9,7 +9,7 @@
         {% for event in scheduled %}
         <div class="event-item">
             <div class="event" onclick="openEventPopup({{ event.id }})" title="click to edit">
-                <span class="priority">{{ event.priority }}</span>
+                <span class="priority priority-{{ event.priority }}a">{{ event.priority }}</span>
                 <strong>{{ event.name }}</strong> 
                 (Due: {{ event.due_date }})
                 <span class="right">Scheduled: {{ event.start }}</span>
@@ -25,7 +25,7 @@
     <div id="events" class="list">
         {% for event in unscheduled %}
         <div class="event-item" onclick="openEventPopup({{ event.id }})" title="click to edit">
-            <span class="priority">{{ event.priority }}</span>
+            <span class="priority priority-{{ event.priority }}">{{ event.priority }}</span>
             <strong>{{ event.name }}</strong> 
             (Due: {{ event.due_date }})
         </div>
@@ -39,7 +39,7 @@
         {% for event in completed %}
         <div class="event-item">
             <div class="event" onclick="openEventPopup({{ event.id }})" title="click to edit">
-                <span class="priority">{{ event.priority }}</span>
+                <span class="priority priority-{{ event.priority }}">{{ event.priority }}</span>
                 <strong>{{ event.name }}</strong> 
                 (Due: {{ event.due_date }})
             </div>

@@ -229,7 +229,7 @@ def save_slots():
                 cursor.execute("""
                     INSERT INTO slots (start, end, percent_left, priority)
                     VALUES (?, ?, 1.0, ?)
-                """, (start, end, 1));
+                """, (start, end, slot['priority']));
 
         conn.commit();
         return jsonify({'message': 'Slots saved successfully'});
@@ -254,7 +254,7 @@ def get_slots():
         conn = storage.get_db_connection();
         cursor = conn.cursor();
         cursor.execute("""
-            SELECT start, end FROM slots
+            SELECT start, end, priority FROM slots
             WHERE start >= ? AND start < ?
         """, (week_start, week_end));
 
@@ -268,7 +268,8 @@ def get_slots():
             slots.append({
                 'start': start,
                 'duration': end - start,
-                'day': start_time.day
+                'day': start_time.day,
+                'priority': row['priority']
             });
 
 
