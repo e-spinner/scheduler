@@ -11,7 +11,7 @@ from sqlite3 import Row
 def_start_hour = 8;
 
 app = Flask(__name__);
-ui = FlaskUI(server="flask", app=app, width=800, height=800);
+ui = FlaskUI(server="flask", app=app, width=1000, height=800);
 
 # scheduler = Scheduler();
 storage = SchedulerStorage();
@@ -52,7 +52,8 @@ def week_view() -> str:
         prev_year=prev_week_start.year,
         next_day=next_week_start.day,
         next_month=next_week_start.month,
-        next_year=next_week_start.year
+        next_year=next_week_start.year,
+        today = datetime.today()
     );
       
 @app.route('/save_slots', methods=['POST'])
@@ -175,7 +176,8 @@ def month_view() -> str:
             prev_year=year if month > 1 else year - 1,
             next_month=(month + 1) if month < 12 else 1,
             next_year=year if month < 12 else year + 1,
-            num_per_priority=num_per_priority
+            num_per_priority=num_per_priority,
+            today = datetime.today()
         );
         
     finally:
@@ -192,19 +194,17 @@ def events_on_day() -> Response:
         cursor = conn.cursor();
         
         cursor.execute("""
-            SELECT start, end, priority
-            FROM events
+            SELECT * FROM events
             WHERE strftime('%Y', start) = ? 
             AND strftime('%m', start) = ? 
             AND strftime('%d', start) = ? 
             AND start is not NULL
+            ORDER BY start ASC, priority DESC
         """, (str(year), str(month).zfill(2), str(day).zfill(2))),
         
-        events = cursor.fetchall();
+        events = [dict(row) for row in cursor.fetchall()];
         
-        print(events)
-        
-        return jsonify(dict(events));
+        return jsonify(events);
     
     finally:
         conn.close();
@@ -217,7 +217,8 @@ def year_view() -> str:
     return render_template(
         'calendar/year_view.html',
         year=year,
-        month_names=[month_abbr[m] for m in range(1, 13)]
+        month_names=[month_abbr[m] for m in range(1, 13)],
+        today = datetime.today()
     );
 
 # == YEARS == #
@@ -228,7 +229,8 @@ def years_view() -> str:
     return render_template(
         'calendar/years_view.html',
         start_year=datetime.now().year,
-        end_year=current_year + 5
+        end_year=current_year + 5,
+        today = datetime.today()
     );
 
 # ======== #
@@ -237,7 +239,10 @@ def years_view() -> str:
 
 @app.route('/settings')
 def settings() -> str:
-    return render_template('base.html');
+    return render_template(
+        'base.html',
+        today = datetime.today()
+    );
 
 # ============ #
 # EVENT EDITOR #
@@ -292,7 +297,8 @@ def event_editor() -> str:
             'event_editor.html', 
             scheduled=scheduled,
             unscheduled=unscheduled,
-            completed=completed
+            completed=completed,
+            today = datetime.today()
             );
     except Exception as e:
         return jsonify({'error': str(e)}), 500;

@@ -15,6 +15,7 @@ body {
     margin: 0;
     background-color: #f5f5f5;
     overflow: hidden;
+    user-select: none;
 }
 
 .nav-bar {
@@ -24,7 +25,7 @@ body {
     overflow: hidden;
     position: fixed;
     top: 0;
-    width: 100%;
+    width: 800px;
     z-index: 1000;
 }
 
@@ -47,6 +48,7 @@ body {
 
 .content {
     margin-top: 45px; /* Prevent content from overlapping navbar */
+    width: 800px;
 }
 
 .priority-1 {
@@ -89,20 +91,31 @@ body {
     background-color: var(--priority-5a);
 }
 
-/* Popup styles */
-.popup {
-    display: block;
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    z-index: 1000;
-    width: 90%;
-    max-width: 400px;
+#tasks {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 800px;
+    border-left: black solid 2px;
+    background-color: #ddd;
+    text-align: center;
 }
 
-.hidden {
-    display: none;
+#tasks-heading {
+}
+
+#tasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin: 5px;
+}
+
+.task {
+    text-align: left;
+}
+
+.task:hover {
+    border: black solid 1px;
 }

@@ -98,31 +98,10 @@ class Scheduler:
     
     def optimize_schedule(self) -> None:
         
-        # pass through events in priority order
-        for event in self.events:
-            # try different times for event, from max to min incrementing by 15
-            for duration in [timedelta(minutes=x)
-                            for x in range(
-                                int(event.max_time.total_seconds() / 60),
-                                int(event.min_time.total_seconds() / 60) - 1,
-                                -15
-                            )]:
-                
-                selected_slot = None;
-                for slot in self.slots:
-                    if duration <= (slot.end - slot.start) * slot.percent_left and (slot.start + duration <= event.due_date):
-                        selected_slot = slot;
-                        break;
-                    
-                if selected_slot:
-                                        
-                    event.schedule_event(slot.adj_start, slot.adj_start + duration);
-                    slot.percent_left -= duration / slot.capacity;
-                    
-                    break
-            
-            if not event.is_scheduled: event.is_failed = True;
-            # could later add logic to try to recover time from previously scheduled events
+        # scheduling logic goes here
+        
+        pass
+        
 
     def save_scheduled_events(self) -> None:
         conn = self.storage.get_db_connection();

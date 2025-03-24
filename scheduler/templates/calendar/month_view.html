@@ -3,12 +3,6 @@
 {% block content %}
 <link rel="stylesheet" href="/static/css/calendar.css">
 
-<script>
-    const year = year;
-    const month = month;
-    const num_per_priority = {{ num_per_priority|tojson|safe }};
-</script>
-
 <h1>
     <a href="/?year={{ prev_year }}&month={{ prev_month }}">←</a>
     <a href="/year_view?year={{ year }}">{{ month_name }} - <span id="year-link">{{ year }}</span></a>
@@ -48,10 +42,29 @@
     {% endfor %}
 </div>
 
-<div id="popup" class="popup hidden">
-    <h1>AHHHHH!</h1>
-    <button onclick="closePopup()">Close</button>
-</div>
+<script>
+    const year = {{ year }};
+    const month = {{ month }};
+    const num_per_priority = {{ num_per_priority|tojson|safe }};
 
-<script src="/static/js/month.js"></script>
+
+Object.entries(num_per_priority).forEach(([day, priorities]) => {
+    const box = document.getElementById(day);
+    if (box) {
+        priorities.forEach((num, index) => {
+            if (num > 0) { // Only display if there are events
+                const circle = document.createElement('div');
+                circle.classList.add('event');
+                circle.classList.add(`priority-${index + 1}a`);
+                circle.innerText = `${num}`;
+                box.appendChild(circle);
+            }
+        });
+
+        box.addEventListener("click", () => {
+            taskView(year, month, day);
+        });
+    }
+});
+</script>
 {% endblock %}

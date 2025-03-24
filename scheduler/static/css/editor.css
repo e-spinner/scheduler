@@ -135,3 +135,20 @@ button[type="delete"]:hover {
 button[type="toggle"]:hover {
     font-weight: bold;
 }
+
+.popup {
+    display: block;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+    width: 90%;
+    max-width: 400px;
+}
+
+.hidden {
+    display: none;
+}

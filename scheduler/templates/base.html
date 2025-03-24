@@ -39,13 +39,48 @@
         <a href="/settings">Settings</a>
         <a href="/">Calendar</a>
         <a href="/event_editor">Event Manager</a>
-        <button onclick="schedule()">Optimize Schedule</button>
     </div>
 
     <div class="content">
         {% block content %}
         {% endblock %}
     </div>
+
+
+    <div id="tasks">
+        <h1 id="tasks-heading"></h1>
+
+        <!-- List Events for the selected Day -->
+        <div id="tasks-list"></div>
+
+    </div>
+
+    <script>
+        function taskView(y, m, day) {
+            fetch(`/events_on_day?year=${y}&month=${m}&day=${day}`)
+                .then(response => response.json())
+                .then( events => {
+                    const list = document.getElementById('tasks-list');
+                    document.getElementById('tasks-heading').innerText = `${m}/${day}, ${y}`;
+                    if (list) {
+                        list.innerHTML = "";
+                        events.forEach( event  => {
+
+                            div = document.createElement('div');
+
+                            div.classList.add(`priority-${event.priority}a`);
+                            div.classList.add("task");
+
+                            div.innerText = event.name
+
+                            list.appendChild(div);
+                        });
+                    };               
+                });
+        };
+
+        taskView({{ today.year }}, {{ today.month }}, {{ today.day }});
+    </script>
 </body>
 
 </html>
