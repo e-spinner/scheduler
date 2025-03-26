@@ -7,28 +7,36 @@
     <link rel="stylesheet" href="/static/css/base.css">
 
     <script>
+
+        const tyear = {{ today.year }};
+        const tmonth = {{ today.month }};
+        const tday = {{ today.day }};
+
         document.addEventListener("DOMContentLoaded", function () {
-        const links = document.querySelectorAll(".nav-bar a");
-        const currentPath = window.location.pathname;
+            const links = document.querySelectorAll(".nav-bar a");
+            const currentPath = window.location.pathname;
 
-        links.forEach(link => {
-            if (link.getAttribute("href") === currentPath) {
-            link.classList.add("active");
-            } else if (
-                (currentPath === '/week_view' ||
-                currentPath === '/year_view' ||
-                currentPath === '/years_view' ) &&
-                link.getAttribute("href") === '/'
-             ) {
+            links.forEach(link => {
+                if (link.getAttribute("href") === currentPath) {
                 link.classList.add("active");
-             }
-        });
+                } else if (
+                    (currentPath === '/week_view' ||
+                    currentPath === '/year_view' ||
+                    currentPath === '/years_view' ) &&
+                    link.getAttribute("href") === '/'
+                ) {
+                    link.classList.add("active");
+                }
+            });
 
-        document.addEventListener("contextmenu", function (e) {
-            e.preventDefault();
-        });
+            document.addEventListener("contextmenu", function (e) {
+                e.preventDefault();
+            });
+
         });
     </script>
+
+    <script src="/static/js/base.js"></script>
 </head>
 
 <body>
@@ -39,7 +47,6 @@
         <a href="/settings">Settings</a>
         <a href="/">Calendar</a>
         <a href="/event_editor">Event Manager</a>
-        <button onclick="fetch('/optimize')">ahhhhhhhhhh</button>
     </div>
 
     <div class="content">
@@ -50,67 +57,27 @@
 
     <div id="tasks">
         <h1 id="tasks-heading"></h1>
+        <button onclick="optimize()">Optimize Schedule</button>
+        <button id="add-event-btn" onclick="openEventPopup(null)">Add Event</button>
 
         <!-- List Events for the selected Day -->
         <div id="tasks-list"></div>
 
     </div>
 
-    <script>
-        function taskView(y, m, day) {
-            fetch(`/events_on_day?year=${y}&month=${m}&day=${day}`)
-                .then(response => response.json())
-                .then( events => {
-                    const list = document.getElementById('tasks-list');
-                    document.getElementById('tasks-heading').innerText = `${m}/${day}, ${y}`;
-                    if (list) {
-                        list.innerHTML = "";
-                        events.forEach( event  => {
+    <div id="popup" class="popup hidden">
+        <form id="event-form">
+            <label>Name: <input type="text" id="event-name" name="name" maxlength="28" placeholder="max 28 characters" required></label>
+            <label>Due Date: <input type="datetime-local" id="event-due-date" name="due_date" required></label>
+            <label>Min Time (mins): <input type="number" id="event-min-time" name="min_time" min="0" placeholder="30" required></label>
+            <label>Max Time (mins): <input type="number" id="event-max-time" name="max_time" min="0" placeholder="180" required></label>
+            <label>Priority: <input type="number" id="event-priority" name="priority" min="1" max="5" placeholder="1 - 5" required></label>
+            <button type="submit">Save</button>
+            <button type="cancel" onclick="closeEventPopup()">Cancel</button>
+            <button type="delete" id="delete-event-btn" onclick="deleteEvent()">Delete</button>
+        </form>
+    </div>
 
-                            const div = document.createElement('div');
-                            div.id = event.id;
-
-                            const task = document.getElementById(event.id)
-
-                            if (event.completed){
-                                task.classList.add(`priority-6a`);
-                            } else {
-                                task.classList.add(`priority-${event.priority}a`);
-                            }
-                            task.classList.add("task");
-                            task.addEventListener("click", () => {
-                                if (event.completed) {
-                                    event.completed = 0;
-                                    task.classList.remove(`priority-6a`);
-                                    task.classList.add(`priority-${event.priority}a`);
-                                    toggleTask(event.id, 0)
-                                }
-                                else {
-                                    event.completed = 1;
-                                    task.classList.remove(`priority-${event.priority}a`);
-                                    task.classList.add(`priority-6a`);
-                                    toggleTask(event.id, 1)
-                                }
-                            })
-
-                            task.innerHTML = `
-                                <span class="task-name">${event.name}</span>
-                                <span class="task-time">${event.start} - ${event.end}</span>
-                            `
-
-                            list.appendChild(task);
-                        });
-                    };               
-                });
-        };
-
-        function toggleTask(eventId, done) {
-            fetch(`/set_done/${eventId}/${done}`, { method: 'POST' })
-                .then(response => response.json())
-        }
-
-        taskView({{ today.year }}, {{ today.month }}, {{ today.day }});
-    </script>
 </body>
 
 </html>

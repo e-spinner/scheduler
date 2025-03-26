@@ -2,7 +2,6 @@
 
 {% block content %}
 <link rel="stylesheet" href="/static/css/editor.css">
-<button id="add-event-btn" onclick="openEventPopup(null)">Add Event</button>
 <div class="list-container">
     <button id="todo-btn" class="collapse-btn" onclick="toggleListVisibility('todo','Scheduled Events')">Hide Scheduled Events</button>
     <div id="todo" class="list">
@@ -47,20 +46,6 @@
         </div>
         {% endfor %}
     </div>
-</div>
-
-
-<div id="popup" class="popup hidden">
-    <form id="event-form">
-        <label>Name: <input type="text" id="event-name" name="name" maxlength="28" placeholder="max 28 characters" required></label>
-        <label>Due Date: <input type="datetime-local" id="event-due-date" name="due_date" required></label>
-        <label>Min Time (mins): <input type="number" id="event-min-time" name="min_time" min="0" placeholder="30" required></label>
-        <label>Max Time (mins): <input type="number" id="event-max-time" name="max_time" min="0" placeholder="180" required></label>
-        <label>Priority: <input type="number" id="event-priority" name="priority" min="1" max="5" placeholder="1 - 5" required></label>
-        <button type="submit">Save</button>
-        <button type="cancel" onclick="closeEventPopup()">Cancel</button>
-        <button type="delete" id="delete-event-btn" onclick="deleteEvent()">Delete</button>
-    </form>
 </div>
 
 <script src="/static/js/editor.js"></script>
