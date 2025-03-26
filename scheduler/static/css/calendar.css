@@ -91,6 +91,7 @@ h1 a:hover{
     row-gap: 4px;
     column-gap: 6px;
     margin-top: 8px;
+    cursor: pointer;
 }
 
 .event {

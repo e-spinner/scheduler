@@ -4,11 +4,13 @@
     --priority-3: #7a65ff;
     --priority-4: #ffe358;
     --priority-5: #ff104e;
+    --priority-6: #bbbbbb;
     --priority-1a: #00b3ffb0;
     --priority-2a: #83ff00b0;
     --priority-3a: #7a65ffb0;
     --priority-4a: #ffe358b0;
     --priority-5a: #ff104eb0;
+    --priority-6a: #bbbbbbb0;
 }
 
 body {
@@ -51,45 +53,18 @@ body {
     width: 800px;
 }
 
-.priority-1 {
-    background-color: var(--priority-1);
-}
-
-.priority-2 {
-    background-color: var(--priority-2);
-}
-
-.priority-3 {
-    background-color: var(--priority-3);
-}
-
-.priority-4 {
-    background-color: var(--priority-4);
-}
-
-.priority-5 {
-    background-color: var(--priority-5);
-}
-
-.priority-1a {
-    background-color: var(--priority-1a);
-}
-
-.priority-2a {
-    background-color: var(--priority-2a);
-}
-
-.priority-3a {
-    background-color: var(--priority-3a);
-}
-
-.priority-4a {
-    background-color: var(--priority-4a);
-}
-
-.priority-5a {
-    background-color: var(--priority-5a);
-}
+.priority-1 { background-color: var(--priority-1); }
+.priority-2 { background-color: var(--priority-2); }
+.priority-3 { background-color: var(--priority-3); }
+.priority-4 { background-color: var(--priority-4); }
+.priority-5 { background-color: var(--priority-5); }
+.priority-6 { background-color: var(--priority-6); }
+.priority-1a { background-color: var(--priority-1a); }
+.priority-2a { background-color: var(--priority-2a); }
+.priority-3a { background-color: var(--priority-3a); }
+.priority-4a { background-color: var(--priority-4a); }
+.priority-5a { background-color: var(--priority-5a); }
+.priority-6a { background-color: var(--priority-6a); }
 
 #tasks {
     position: absolute;
@@ -110,12 +85,29 @@ body {
     flex-direction: column;
     gap: 5px;
     margin: 5px;
+    overflow-y: scroll;
+    height: 700px;
 }
 
 .task {
-    text-align: left;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
 }
 
 .task:hover {
     border: black solid 1px;
+}
+
+.task-name {
+    font-weight: bold;
+}
+
+.task-time {
+    font-size: small;
+}
+
+
+::-webkit-scrollbar {
+    display: none;
 }

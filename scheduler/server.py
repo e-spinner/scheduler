@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify, Response
 from flaskwebgui import FlaskUI
 
 from database import SchedulerStorage
-# from model import Scheduler
+from model import Scheduler
 
 from datetime import datetime, timedelta
 from calendar import monthrange, month_abbr
@@ -13,7 +13,6 @@ def_start_hour = 8;
 app = Flask(__name__);
 ui = FlaskUI(server="flask", app=app, width=1000, height=800);
 
-# scheduler = Scheduler();
 storage = SchedulerStorage();
 
 # ======== #
@@ -82,8 +81,8 @@ def save_slots() -> Response:
                 start = datetime(slot['slot_year'], slot['slot_month'], slot['slot_day'], int(slot['start'] / 60), int(slot['start']) % 60);
                 end = start + timedelta(minutes=slot['duration']);
                 cursor.execute("""
-                    INSERT INTO slots (start, end, percent_left, priority)
-                    VALUES (?, ?, 1.0, ?)
+                    INSERT INTO slots (start, end, time_used, priority)
+                    VALUES (?, ?, 0, ?)
                 """, (start, end, slot['priority']));
 
         conn.commit();
@@ -148,7 +147,7 @@ def month_view() -> str:
 
         # Fetch events that are scheduled in the selected month and are scheduled
         cursor.execute("""
-            SELECT start, priority
+            SELECT start, priority, completed
             FROM events 
             WHERE strftime('%Y', start) = ? 
             AND strftime('%m', start) = ? 
@@ -161,9 +160,12 @@ def month_view() -> str:
         for event in events:
             day = datetime.fromisoformat(event['start']).day;
             if day not in num_per_priority:
-                num_per_priority[day] = [0,0,0,0,0];
-                
-            num_per_priority[day][event['priority']-1] += 1;
+                num_per_priority[day] = [0,0,0,0,0,0];
+            
+            if event['completed'] == 0:
+                num_per_priority[day][event['priority']-1] += 1;
+            else:
+                num_per_priority[day][5] += 1;
 
         return render_template(
             'calendar/month_view.html',
@@ -203,6 +205,10 @@ def events_on_day() -> Response:
         """, (str(year), str(month).zfill(2), str(day).zfill(2))),
         
         events = [dict(row) for row in cursor.fetchall()];
+        
+        for event in events:
+            event['start'] = datetime.fromisoformat(event['start']).strftime('%I:%M %p');
+            event['end'] = datetime.fromisoformat(event['end']).strftime('%I:%M %p');
         
         return jsonify(events);
     
@@ -267,12 +273,12 @@ def event_editor() -> str:
                           WHERE completed = 0 
                           AND due_date >= ? 
                           AND start is NULL 
-                          ORDER BY due_date ASC""", (today,));
+                          ORDER BY priority DESC, due_date ASC""", (today,));
         unscheduled = [dict(row) for row in cursor.fetchall()];
         
         cursor.execute("""SELECT * FROM events 
                           WHERE completed = 1 
-                          ORDER BY due_date ASC""");
+                          ORDER BY priority DESC, due_date ASC""");
         completed = [dict(row) for row in cursor.fetchall()];
         
         for row in scheduled:
@@ -406,9 +412,20 @@ def get_week_start(date: datetime) -> datetime:
     
     return date - timedelta(days=weekday);
 
+@app.route('/optimize')
+def optimize():
+    
+    scheduler = Scheduler(storage);
+    
+    scheduler.optimize_schedule();
+    scheduler.save_scheduled_events();
+    
+    return jsonify({'success': True});
+
 # =========== #
 # DRIVER CODE #
 # =========== #
 
 if __name__ == "__main__":
     ui.run();
+    

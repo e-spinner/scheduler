@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Literal, Optional
+from typing import List, Literal
 from datetime import datetime, timedelta
 
 from database import SchedulerStorage
@@ -18,11 +18,12 @@ class TimeWindow:
 @dataclass
 class Slot(TimeWindow):
     """A window of available time that can be filled with events"""
-    percent_left: float = 1.0;
+    id: int;
+    time_used: int = 0
     
     @property
     def capacity(self) -> timedelta:
-        return self.duration * self.percent_left;
+        return self.duration - timedelta(minutes=self.time_used);
     
     @property
     def adj_start(self) -> datetime:
@@ -69,17 +70,18 @@ class Scheduler:
 
         # Load slots from today onwards
         cursor.execute("""
-            SELECT start, end, percent_left, priority FROM slots
+            SELECT start, end, priority, id FROM slots
             WHERE start >= ?
             ORDER BY priority ASC, start ASC
         """, (current_date,))
-        self.slots = [Slot(datetime.fromisoformat(row['start']), datetime.fromisoformat(row['end']), row['priority'], row['percent_left']) for row in cursor.fetchall()]
+        self.slots = [Slot(datetime.fromisoformat(row['start']), datetime.fromisoformat(row['end']), row['priority'], row['id'], 0) for row in cursor.fetchall()]
 
-        # Load all events from today onwards, even previously scheduled
+        # Load all uncompleted events from today onwards, even previously scheduled
         cursor.execute("""
             SELECT id, name, start, end, due_date, min_time, max_time, priority FROM events
             WHERE due_date >= ?
-            ORDER BY priority ASC, due_date ASC
+            AND completed == 0
+            ORDER BY priority DESC, due_date ASC
         """, (current_date,))
         self.events = [
             Event(
@@ -98,9 +100,31 @@ class Scheduler:
     
     def optimize_schedule(self) -> None:
         
-        # scheduling logic goes here
+        # pass through events in priority order
+        for event in self.events:
+            # try different times for event, from max to min incrementing by 15
+
+            for duration in [timedelta(minutes=x)
+                             for x in range(
+                             int(event.max_time.total_seconds() / 60),
+                             int(event.min_time.total_seconds() / 60) - 1,
+                             -15
+                            )]:
+                selected_slot = None;
+                for slot in self.slots:
+                    if duration <= slot.capacity and (slot.start + duration <= event.due_date):
+                        selected_slot = slot;
+                        break;
+                if selected_slot:
+                    print(slot)
+                    event.schedule_event(slot.adj_start, slot.adj_start + duration);
+                    slot.time_used += int(duration.total_seconds() // 60);
+                    break
+ 
+            if not event.is_scheduled: event.is_failed = True;
+
+            # could later add logic to try to recover time from previously scheduled events
         
-        pass
         
 
     def save_scheduled_events(self) -> None:
@@ -113,5 +137,16 @@ class Scheduler:
                     SET start = ?, end = ?
                     WHERE id = ?
                 """, (event.start.isoformat(), event.end.isoformat(), event.id));
+                
+        for slot in self.slots:
+            if slot.time_used is not 0:
+                cursor.execute("""
+                    UPDATE slots
+                    set time_used = ?
+                    WHERE id = ?
+                """, (slot.time_used, slot.id));
+                
+        
+            
         conn.commit();
         conn.close();

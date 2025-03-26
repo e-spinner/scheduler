@@ -39,6 +39,7 @@
         <a href="/settings">Settings</a>
         <a href="/">Calendar</a>
         <a href="/event_editor">Event Manager</a>
+        <button onclick="fetch('/optimize')">ahhhhhhhhhh</button>
     </div>
 
     <div class="content">
@@ -66,18 +67,47 @@
                         list.innerHTML = "";
                         events.forEach( event  => {
 
-                            div = document.createElement('div');
+                            const div = document.createElement('div');
+                            div.id = event.id;
 
-                            div.classList.add(`priority-${event.priority}a`);
-                            div.classList.add("task");
+                            const task = document.getElementById(event.id)
 
-                            div.innerText = event.name
+                            if (event.completed){
+                                task.classList.add(`priority-6a`);
+                            } else {
+                                task.classList.add(`priority-${event.priority}a`);
+                            }
+                            task.classList.add("task");
+                            task.addEventListener("click", () => {
+                                if (event.completed) {
+                                    event.completed = 0;
+                                    task.classList.remove(`priority-6a`);
+                                    task.classList.add(`priority-${event.priority}a`);
+                                    toggleTask(event.id, 0)
+                                }
+                                else {
+                                    event.completed = 1;
+                                    task.classList.remove(`priority-${event.priority}a`);
+                                    task.classList.add(`priority-6a`);
+                                    toggleTask(event.id, 1)
+                                }
+                            })
 
-                            list.appendChild(div);
+                            task.innerHTML = `
+                                <span class="task-name">${event.name}</span>
+                                <span class="task-time">${event.start} - ${event.end}</span>
+                            `
+
+                            list.appendChild(task);
                         });
                     };               
                 });
         };
+
+        function toggleTask(eventId, done) {
+            fetch(`/set_done/${eventId}/${done}`, { method: 'POST' })
+                .then(response => response.json())
+        }
 
         taskView({{ today.year }}, {{ today.month }}, {{ today.day }});
     </script>

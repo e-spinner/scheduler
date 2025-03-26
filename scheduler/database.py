@@ -4,20 +4,20 @@ DB_PATH = "database.db";
 
 class SchedulerStorage:
     def __init__(self, db_path=DB_PATH):
-        self.db_path = db_path;
-        self._initialize_db();
+        self.db_path = db_path
+        self._initialize_db()
 
     def _initialize_db(self) -> None:
         """Create tables if they don't exist."""
         with connect(self.db_path) as conn:
-            cursor = conn.cursor();
+            cursor = conn.cursor()
             cursor.executescript("""
                 CREATE TABLE IF NOT EXISTS slots (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     start DATETIME NOT NULL,
                     end DATETIME NOT NULL,
-                    percent_left REAL NOT NULL default 1.0,
-                    priority INTEGER NOT NULL,
-                    PRIMARY KEY(start, end)
+                    time_used INTERGER NOT NULL DEFAULT 0,
+                    priority INTEGER NOT NULL
                 );
 
                 CREATE TABLE IF NOT EXISTS events (
@@ -31,11 +31,19 @@ class SchedulerStorage:
                     priority INTEGER NOT NULL,
                     completed BOOLEAN DEFAULT 0
                 );
+
+                CREATE TABLE IF NOT EXISTS event_availability (
+                    event_id INTEGER,
+                    start DATETIME NOT NULL,
+                    end DATETIME NOT NULL,
+                    priority INTEGER NOT NULL,
+                    FOREIGN KEY (event_id) REFERENCES events(id),
+                    PRIMARY KEY (event_id, start, end)
+                );
             """);
-            conn.commit();
-        
+            conn.commit()
+
     def get_db_connection(self):
-        conn = connect('database.db');
-        conn.row_factory = Row;
-        return conn;
-        
+        conn = connect(self.db_path)
+        conn.row_factory = Row
+        return conn
