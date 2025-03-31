@@ -7,12 +7,16 @@
 - &#9745;  Backend Scheduling Logic
 - &#9745;  Frontend Optimize Schedule Button / input
 
+<br>
+
+- &#9744; Create optimization that can schedule
+
 
 
 
 ## Scheduler
 
-> Schedules for One Person on events that have speccific Availabilities
+> Schedules for One Person on events that have specific Availabilities
 
 
 - &#9745;  Table to Hold Event Availabilties
@@ -21,7 +25,7 @@
 
 ## Complex SCheduler
 
-> Schedules for multiple people on events that have speccific Availabilities
+> Schedules for multiple people on events that have specific Availabilities
 
 - &#9744;  Table to Hold different people availabilities
 - &#9744;  Scheduling logic to handle multiple people

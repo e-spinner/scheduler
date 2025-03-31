@@ -170,6 +170,10 @@ button[type="toggle"]:hover {
     font-weight: bold;
 }
 
+#add-event-btn {
+    margin-top: 10px;
+}
+
 .popup {
     display: block;
     position: fixed;

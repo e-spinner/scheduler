@@ -2,15 +2,6 @@ body {
     overflow: hidden;
 }
 
-#add-event-btn {
-    background-color: #007bff; 
-    margin: 10px;
-}
-
-#add-event-btn:hover {
-    background-color: #0056b3;
-}
-
 .content {
     display: flex;
     flex-direction: column;

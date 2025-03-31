@@ -19,7 +19,7 @@ class TimeWindow:
 class Slot(TimeWindow):
     """A window of available time that can be filled with events"""
     id: int;
-    time_used: int = 0
+    time_used: int = 0;
     
     @property
     def capacity(self) -> timedelta:
@@ -139,7 +139,7 @@ class Scheduler:
                 """, (event.start.isoformat(), event.end.isoformat(), event.id));
                 
         for slot in self.slots:
-            if slot.time_used is not 0:
+            if slot.time_used != 0:
                 cursor.execute("""
                     UPDATE slots
                     set time_used = ?

@@ -41,10 +41,8 @@ function taskView(y, m, day) {
                 list.innerHTML = "";
                 events.forEach( event  => {
 
-                    const div = document.createElement('div');
-                    div.id = event.id;
-
-                    const task = document.getElementById(event.id)
+                    const task = document.createElement('div');
+                    task.id = event.id;
 
                     if (event.completed){
                         task.classList.add(`priority-6a`);
