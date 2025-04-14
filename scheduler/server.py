@@ -2,22 +2,21 @@ from flask import Flask, render_template, request, jsonify, Response
 from flaskwebgui import FlaskUI
 
 from database import SchedulerStorage
-from model import Scheduler
+from optimize import Scheduler
 
 from datetime import datetime, timedelta
 from calendar import monthrange, month_abbr
-from sqlite3 import Row
 
 def_start_hour = 8;
 
 app = Flask(__name__);
 ui = FlaskUI(server="flask", app=app, width=1000, height=800);
 
-storage = SchedulerStorage();
+storage = SchedulerStorage(db_path='./scheduler/database.db');
 
-# ======== #
-# CALENDAR #
-# ======== #
+# ============== #
+# MARK: CALENDAR #
+# ============== #
 
 # == WEEK == #
 @app.route('/week_view')
@@ -239,9 +238,9 @@ def years_view() -> str:
         today = datetime.today()
     );
 
-# ======== #
-# SETTINGS #
-# ======== #
+# ============== #
+# MARK: SETTINGS #
+# ============== #
 
 @app.route('/settings')
 def settings() -> str:
@@ -250,9 +249,9 @@ def settings() -> str:
         today = datetime.today()
     );
 
-# ============ #
-# EVENT EDITOR #
-# ============ #
+# ================== #
+# MARK: EVENT EDITOR #
+# ================== #
 
 @app.route('/event_editor')
 def event_editor() -> str:
@@ -402,9 +401,9 @@ def set_done(event_id: int, done: int) -> Response:
     finally:
         conn.close();
 
-# ================ #
-# HELPER FUNCTIONS #
-# ================ #
+# ====================== #
+# MARK: HELPER FUNCTIONS #
+# ====================== #
 
 def get_week_start(date: datetime) -> datetime:
     weekday = date.weekday();
@@ -412,12 +411,12 @@ def get_week_start(date: datetime) -> datetime:
     
     return date - timedelta(days=weekday);
 
-@app.route('/optimize')
-def optimize():
+@app.route('/optimize/<method>')
+def optimize(method: str):
     
     scheduler = Scheduler(storage);
     
-    scheduler.optimize_schedule();
+    scheduler.schedule(method);
     scheduler.save_scheduled_events();
     
     return jsonify({'success': True});
