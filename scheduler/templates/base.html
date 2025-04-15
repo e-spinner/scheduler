@@ -57,7 +57,7 @@
 
     <div id="tasks">
         <h1 id="tasks-heading"></h1>
-        <button onclick="optimize()">Optimize Schedule</button>
+        <button onclick="openPopup('optimize')">Optimize Schedule</button>
         <button id="add-event-btn" onclick="openEventPopup(null)">Add Event</button>
 
         <!-- List Events for the selected Day -->
@@ -65,7 +65,7 @@
 
     </div>
 
-    <div id="popup" class="popup hidden">
+    <div id="event-popup" class="popup hidden">
         <form id="event-form">
             <label>Name: <input type="text" id="event-name" name="name" maxlength="28" placeholder="max 28 characters" required></label>
             <label>Due Date: <input type="datetime-local" id="event-due-date" name="due_date" required></label>
@@ -73,9 +73,15 @@
             <label>Max Time (mins): <input type="number" id="event-max-time" name="max_time" min="0" placeholder="180" required></label>
             <label>Priority: <input type="number" id="event-priority" name="priority" min="1" max="5" placeholder="1 - 5" required></label>
             <button type="submit">Save</button>
-            <button type="cancel" onclick="closeEventPopup()">Cancel</button>
+            <button type="cancel" onclick="closePopup('event')">Cancel</button>
             <button type="delete" id="delete-event-btn" onclick="deleteEvent()">Delete</button>
         </form>
+    </div>
+
+    <div id="optimize-popup" class="popup hidden">
+        <button type="optimize" onclick="optimize('greedy')">Greedy Optimization</button>
+        <button type="opyimize" onclick="optimize('genetic')">Genetic Optimimzation</button>
+        <button type="cancel" onclick="closePopup('optimize')">Cancel</button>
     </div>
 
 </body>

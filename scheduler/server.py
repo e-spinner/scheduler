@@ -419,6 +419,8 @@ def optimize(method: str):
     scheduler.schedule(method);
     scheduler.save_scheduled_events();
     
+    print(method)
+    
     return jsonify({'success': True});
 
 # =========== #

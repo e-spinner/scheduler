@@ -22,8 +22,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-function optimize() {
-    fetch('/optimize')
+function optimize(method) {
+    fetch(`/optimize/${method}`)
         .then(response => response.json())
         .then(data => {
             console.log(data.message || 'Schedule optimized successfully');
@@ -82,7 +82,7 @@ function toggleTask(eventId, done) {
 }
 
 function openEventPopup(eventId) {
-    const popup = document.getElementById('popup');
+    const popup = document.getElementById('event-popup');
     const form = document.getElementById('event-form');
     const deleteButton = document.getElementById('delete-event-btn');
 
@@ -106,8 +106,12 @@ function openEventPopup(eventId) {
     popup.classList.remove('hidden');
 }
 
-function closeEventPopup() {
-    document.getElementById('popup').classList.add('hidden');
+function closePopup(popupId) {
+    document.getElementById(`${popupId}-popup`).classList.add('hidden');
+}
+
+function openPopup(popupId) {
+    document.getElementById(`${popupId}-popup`).classList.remove('hidden');
 }
 
 function deleteEvent() {
