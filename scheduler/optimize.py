@@ -16,7 +16,7 @@ from pymoo.operators.sampling.rnd import FloatRandomSampling
 
 # opt logic
 def optimize_schedule( x:np.ndarray, slots:List[Slot], events:List[Event], debug:bool) -> tuple[float, int, float, List[Event], List[Slot]]:
-
+    
     if debug: print(f'x: {x}');
     # extract x
     duration_scalars = x[:len(events)];

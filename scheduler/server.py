@@ -75,9 +75,9 @@ def delete_event(event_id): return edit.delete_event(event_id, storage);
 @app.route('/set_done/<int:event_id>/<int:done>', methods=['POST'])
 def set_done(event_id, done): return edit.set_done(event_id, done, storage);
 
-# ================ #
-# HELPER FUNCTIONS #
-# ================ #
+
+
+
 
 @app.route('/optimize/<method>')
 def optimize(method: str):

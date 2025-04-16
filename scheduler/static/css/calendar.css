@@ -102,3 +102,44 @@ h1 a:hover{
     height: 15px;
 }
 
+.availabilty-btn {
+    left: 25px;
+    background: #ddd;
+    width:  20px;
+    height: 87px;
+    writing-mode: vertical-lr;
+    rotate: 180deg;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.availabilty-btn a {
+    text-decoration: none;
+    color: #000;
+}
+
+.availabilty-btn:hover {
+    background-color: #ccc;
+}
+
+#availabilty-header {
+    left: 5px;
+    top: 163px;
+    height: inherit;
+    background-color: #ccc;
+}
+
+#availabilty-btn-box {
+    display: grid;
+    gap: 5px;
+}
+
+#availabilty-container {
+    position: absolute;
+    display: flex;
+    top: 163px;
+    left: 5px;
+}
+
+

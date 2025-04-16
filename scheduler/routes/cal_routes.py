@@ -154,13 +154,15 @@ def month_view(storage: SchedulerStorage) -> str:
                 num_per_priority[day][event['priority']-1] += 1;
             else:
                 num_per_priority[day][5] += 1;
+                
+        start_weekday = datetime(year, month, 1).weekday()+1;
 
         return render_template(
             'calendar/month_view.html',
             year=year,
             month=month,
             month_name=month_abbr[month],
-            start_weekday=datetime(year, month, 1).weekday()+1,
+            start_weekday=start_weekday if start_weekday < 7 else 0,
             num_days=monthrange(year, month)[1],
             prev_month=(month - 1) if month > 1 else 12,
             prev_year=year if month > 1 else year - 1,

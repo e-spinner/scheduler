@@ -9,6 +9,24 @@
     <a href="/?year={{ next_year }}&month={{ next_month }}">→</a>
 </h1>
 
+<!-- Availability Manager-->
+<div id="availabilty-container">
+    <div id="availabilty-header" class="availabilty-btn">Availabilty Manager</div>
+    <div id="availabilty-btn-box">
+        {% for day in range(1, num_days+1) %}      
+
+            {% if day == 1 or (day + start_weekday) % 7 == 1 %}
+
+                <div class="availabilty-btn" style="top: calc({{ ((day + start_weekday) / 7) | round(0, 'ceil') }} * 92px + 71px);">
+                    <a href="/week_view?year={{ year }}&month={{ month }}&day={{ day }}">Edit Week</a>
+                </div>
+
+            {% endif %}
+
+        {% endfor %}
+    </div>
+</div>
+
 <div class="grid">
     <!-- Weekday Headers -->
     <div class="weekday">Sun</div>
@@ -28,11 +46,13 @@
 
     <!-- Days of the Month -->
     {% for day in range(1, num_days+1) %}
+
+
         {% set day_of_week = (start_weekday + day - 1) % 7 %}
-        <div class="block{% if day_of_week == 0 or day_of_week == 6 %} weekend{% endif %}">
-            <a class="date" href="/week_view?year={{ year }}&month={{ month }}&day={{ day }}">
-                <div class="date-box">{{ day }}</div>
-            </a>
+        <div class="block{% if day_of_week == 0 or day_of_week == 6 %} weekend{% endif %}"
+             onclick="taskView({{year}},{{month}},{{day}})">
+            
+            <div class="date-box">{{ day }}</div>
 
             <!-- Display Events for the Day -->
             <div id="{{ day }}" class="events"></div>
@@ -59,10 +79,6 @@
                     circle.innerText = `${num}`;
                     box.appendChild(circle);
                 }
-            });
-
-            box.addEventListener("click", () => {
-                taskView(year, month, day);
             });
         }
     });
