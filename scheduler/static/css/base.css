@@ -185,6 +185,8 @@ button[type="toggle"]:hover {
     z-index: 1000;
     width: 90%;
     max-width: 400px;
+
+    text-align: center;
 }
 
 .hidden {
