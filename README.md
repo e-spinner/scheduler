@@ -9,10 +9,10 @@
 
 <br>
 
-- &#9744; Create optimization that can schedule
+- &#9745; Create optimization that can schedule
 
 
-
+**Minimal Scheduler is Done**
 
 ## Scheduler
 
@@ -23,7 +23,7 @@
 - &#9744;  UI to input and reflect event availabilites
 - &#9744;  Schedling logic update to handle event time constrants
 
-## Complex SCheduler
+## Complex Scheduler
 
 > Schedules for multiple people on events that have specific Availabilities
 
@@ -32,7 +32,17 @@
 
 ## General Features
 
+#### TODO
 
-- &#9745;  Task view that shows what needs to be done today, or on selected day
 
+- &#9744;  Completed events mark when they were done, and show that
+- &#9744;  Some method of dealing with past due undone events
+- &#9744;  ability to copy events for similar events
+
+- &#9744;  update task View so that it shows you the day by the hour, with events ploted on it
 - &#9744;  Saving a week of availability as a preset, and loading that into new weeks
+- &#9744;  Fix event manager so that it isn't so bad
+
+#### Done
+- &#9745;  Task view that shows what needs to be done today, or on selected day
+- &#9745;  Update ui so that the input of availability is more intuitive

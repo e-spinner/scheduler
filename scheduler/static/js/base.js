@@ -35,7 +35,7 @@ function taskView(y, m, day) {
     fetch(`/events_on_day?year=${y}&month=${m}&day=${day}`)
         .then(response => response.json())
         .then( events => {
-            const list = document.getElementById('tasks-list');
+            const list = document.getElementById('todo-column');
             document.getElementById('tasks-heading').innerText = `${m}/${day}, ${y}`;
             if (list) {
                 list.innerHTML = "";
@@ -43,6 +43,9 @@ function taskView(y, m, day) {
 
                     const task = document.createElement('div');
                     task.id = event.id;
+
+                    task.style.top = (event.start) + "px";
+                    task.style.height = (event.duration) + "px";
 
                     if (event.completed){
                         task.classList.add(`priority-6a`);
@@ -67,7 +70,6 @@ function taskView(y, m, day) {
 
                     task.innerHTML = `
                         <span class="task-name">${event.name}</span>
-                        <span class="task-time">${event.start} - ${event.end}</span>
                     `
 
                     list.appendChild(task);

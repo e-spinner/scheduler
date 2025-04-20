@@ -20,6 +20,9 @@ body {
     user-select: none;
 }
 
+/*  MARK: Nav-bar
+ */
+
 .nav-bar {
     display: flex;
     justify-content: flex-start;
@@ -66,6 +69,9 @@ body {
 .priority-5a { background-color: var(--priority-5a); }
 .priority-6a { background-color: var(--priority-6a); }
 
+/* MARK: Tasks
+ */
+
 #tasks {
     position: absolute;
     top: 0;
@@ -80,19 +86,69 @@ body {
 #tasks-heading {
 }
 
-#tasks-list {
+#todo-grid {
+    background-color: #f5f5f5;
     display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin: 5px;
+    justify-content: center;
+
+    max-height: 650px;
+    height: 960px;
+    width: 180px;
+    margin-left: 10px;
     overflow-y: scroll;
-    height: 700px;
+    position: relative;
+
+    border: 1px solid black;
 }
 
-.task {
+#todo-labels {
     display: flex;
     flex-direction: column;
+    align-items: flex-end;
+    margin-right: 5px;
+    height: 960px;
+    position: absolute;
+    left: 2px;
+}
+
+.todo-label {
+    height: 60px;
+    padding-right: 10px;
+    font-size: 14px;
+}
+
+#todo-lines {
+    z-index: 1;
+    height: 960px;
+    width: 160px;
+    top: 0px;
+    left: 20px;
+    position: absolute;
+    border-left: 1px solid black;
+}
+
+.todo-hour {
+    height: 14px;
+    border-bottom: 1px solid black;
+}
+
+.todo-quarter {
+    height: 14px;
+    border-bottom: 1px solid #ccc;
+}
+
+#todo-column {
+    position: relative;
+    left: 11px;
+    width: 160px;
+}
+
+
+.task {
+    position: absolute;
     cursor: pointer;
+    width: 160px;
+    z-index: 6;
 }
 
 .task:hover {
@@ -106,6 +162,13 @@ body {
 .task-time {
     font-size: small;
 }
+
+
+
+
+
+/* MARK: Popup
+ */
 
 .right {
     right: 15px;

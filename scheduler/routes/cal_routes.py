@@ -175,6 +175,8 @@ def month_view(storage: SchedulerStorage) -> str:
     finally:
         conn.close();
 
+# MARK: Events
+
 def events_on_day(storage: SchedulerStorage) -> Response:
     year = int(request.args.get('year', datetime.now().year));
     month = int(request.args.get('month', datetime.now().month));
@@ -196,8 +198,15 @@ def events_on_day(storage: SchedulerStorage) -> Response:
         events = [dict(row) for row in cursor.fetchall()];
         
         for event in events:
-            event['start'] = datetime.fromisoformat(event['start']).strftime('%I:%M %p');
-            event['end'] = datetime.fromisoformat(event['end']).strftime('%I:%M %p');
+            
+            start_time = datetime.fromisoformat(event['start']);
+            end_time = datetime.fromisoformat(event['end']);
+            start = start_time.hour * 60 + start_time.minute - def_start_hour * 60;
+            end = end_time.hour * 60 + end_time.minute - def_start_hour * 60;
+            
+            
+            event['start'] = start;
+            event['end'] = end - start;
         
         return jsonify(events);
     

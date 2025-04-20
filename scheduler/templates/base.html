@@ -47,6 +47,9 @@
         <a href="/settings">Settings</a>
         <a href="/">Calendar</a>
         <a href="/event_editor">Event Manager</a>
+        <button onclick="openPopup('optimize')">Optimize Schedule</button>
+        <button id="add-event-btn" onclick="openEventPopup(null)">Add Event</button>
+
     </div>
 
     <div class="content">
@@ -57,11 +60,34 @@
 
     <div id="tasks">
         <h1 id="tasks-heading"></h1>
-        <button onclick="openPopup('optimize')">Optimize Schedule</button>
-        <button id="add-event-btn" onclick="openEventPopup(null)">Add Event</button>
 
         <!-- List Events for the selected Day -->
-        <div id="tasks-list"></div>
+        <!-- <div id="tasks-list"></div> -->
+
+        <div id="todo-grid">
+            <div id="todo-labels">
+                {% for hour in range (8, 13) %}
+                    <div class="todo-label">{{ hour }}</div>
+                {% endfor %}
+                {% for hour in range (1, 12) %}
+                    <div class="todo-label">{{ hour }}</div>
+                {% endfor %}
+            </div>
+
+            <div id="todo-lines">
+                {% for hour in range (0, 16) %}
+                    {% if hour != 0 %}
+                        <div class="todo-hour"></div>
+                    {% endif %}
+                    <div class="todo-quarter"></div>
+                    <div class="todo-quarter"></div>
+                    <div class="todo-quarter"></div>
+                {% endfor %}
+            </div>
+
+            <!-- tasks fill in here -->
+            <div id="todo-column"></div>
+        </div>
 
     </div>
 
